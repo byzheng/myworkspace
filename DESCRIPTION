@@ -1,0 +1,20 @@
+Package: myproject
+Type: Package
+Title: My personal R package for project management
+Version: 0.0.1
+Maintainer: Bangyou Zheng <bangyou.zheng@csiro.au>
+Authors@R: person("Bangyou", "Zheng", 
+               email = "bangyou.zheng@csiro.au", 
+               role = c("aut", "cre"))
+Description: My personal R package for project management.
+License: MIT + file LICENSE
+URL: https://myproject.bangyou.me/,
+    https://github.com/byzheng/myproject
+BugReports: https://github.com/byzheng/myproject/issues
+Encoding: UTF-8
+Imports:
+    here
+RoxygenNote: 7.3.3
+Suggests: 
+    testthat (>= 3.0.0),
+    knitr
