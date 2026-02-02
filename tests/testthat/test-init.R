@@ -1,11 +1,11 @@
-test_that("init_project creates all directories", {
+test_that("init creates all directories", {
     # Create a temporary directory for testing
     temp_dir <- tempfile()
     dir.create(temp_dir)
     on.exit(unlink(temp_dir, recursive = TRUE))
 
-    # Run init_project
-    init_project("TestProject", root = temp_dir)
+    # Run init
+    init("TestProject", root = temp_dir)
 
     # Check that all directories exist
     expected_dirs <- c(
@@ -21,13 +21,13 @@ test_that("init_project creates all directories", {
     }
 })
 
-test_that("init_project creates root index.qmd with correct content", {
+test_that("init creates root index.qmd with correct content", {
     temp_dir <- tempfile()
     dir.create(temp_dir)
     on.exit(unlink(temp_dir, recursive = TRUE))
 
     project_name <- "TestProject"
-    init_project(project_name, root = temp_dir)
+    init(project_name, root = temp_dir)
 
     # Check root index.qmd exists
     root_index <- file.path(temp_dir, "index.qmd")
@@ -41,12 +41,12 @@ test_that("init_project creates root index.qmd with correct content", {
     expect_true(any(grepl("Outputs", content)))
 })
 
-test_that("init_project creates index.qmd in specified folders", {
+test_that("init creates index.qmd in specified folders", {
     temp_dir <- tempfile()
     dir.create(temp_dir)
     on.exit(unlink(temp_dir, recursive = TRUE))
 
-    init_project("TestProject", root = temp_dir)
+    init("TestProject", root = temp_dir)
 
     # Check index.qmd files exist in the three main folders
     expected_indexes <- c(
@@ -62,7 +62,7 @@ test_that("init_project creates index.qmd in specified folders", {
     }
 })
 
-test_that("init_project doesn't overwrite existing files", {
+test_that("init doesn't overwrite existing files", {
     temp_dir <- tempfile()
     dir.create(temp_dir)
     on.exit(unlink(temp_dir, recursive = TRUE))
@@ -72,9 +72,9 @@ test_that("init_project doesn't overwrite existing files", {
     custom_content <- "Custom content"
     writeLines(custom_content, root_index)
 
-    # Run init_project
+    # Run init
     expect_message(
-        init_project("TestProject", root = temp_dir),
+        init("TestProject", root = temp_dir),
         "already exists"
     )
 
@@ -83,19 +83,19 @@ test_that("init_project doesn't overwrite existing files", {
     expect_equal(content, custom_content)
 })
 
-test_that("init_project works with here::here() default", {
+test_that("init works with here::here() default", {
     # This test just checks that the function can be called without error
     # when using the default root parameter
     # We won't actually create files in the working directory
-    expect_error(init_project("TestProject", root = tempfile()))
+    expect_error(init("TestProject", root = tempfile()))
 })
 
-test_that("init_project index.qmd files have correct titles", {
+test_that("init index.qmd files have correct titles", {
     temp_dir <- tempfile()
     dir.create(temp_dir)
     on.exit(unlink(temp_dir, recursive = TRUE))
 
-    init_project("TestProject", root = temp_dir)
+    init("TestProject", root = temp_dir)
 
     # Check script index title
     script_index <- file.path(temp_dir, "script", "index.qmd")
