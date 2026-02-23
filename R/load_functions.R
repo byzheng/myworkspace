@@ -20,11 +20,8 @@ load_functions <- function(folders = c(
             "script/function",
             "script/00_function",
             "../000-CommonFiles/script/00_function")) {
-    folders_paths <- c()
-    for (i in seq_along(folders)) {
-        folders_paths[i] <- workspace::path(folders[i])
-    }
-    a <- list.files(folders_paths, pattern = "\\.(R|r)$", 
+    folder_path <- here::here(folders)
+    a <- list.files(folder_path, pattern = "\\.(R|r)$", 
         full.names = TRUE, 
         recursive = TRUE) |>
         sapply(source)
