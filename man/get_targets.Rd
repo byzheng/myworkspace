@@ -26,16 +26,31 @@ objects in scope with names beginning with `_targets_` and combines them into
 a single vector or list using `c()`.
 }
 \details{
-All matched `targets_*` objects must inherit from class `"tar_target"`.
+All matched `targets_*` objects must be either:
+\itemize{
+  \item A single object inheriting from class `"tar_target"`, OR
+  \item A list where all elements inherit from class `"tar_target"`
+}
 The function validates this after each sourced file and errors with file
-context if any matched object does not. It also errors on duplicate
-internal target names. If sourcing a matched file fails, the function
-rethrows with the source file path.
+context if any matched object does not meet these criteria. It also errors on
+duplicate internal target names. If sourcing a matched file fails, the
+function rethrows with the source file path.
 }
 \examples{
 \dontrun{
+# Single tar_target per variable
 dir.create("script")
-writeLines("targets_example <- list(a = 1)", "script/_targets_example.R")
+writeLines(
+  "targets_alpha <- targets::tar_target(alpha, 1)",
+  "script/_targets_alpha.R"
+)
+
+# List of tar_targets per variable
+writeLines(
+  "targets_multi <- list(targets::tar_target(beta, 2), targets::tar_target(gamma, 3))",
+  "script/_targets_multi.R"
+)
+
 get_targets(path = "script")
 }
 }

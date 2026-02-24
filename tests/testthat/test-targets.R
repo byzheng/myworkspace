@@ -92,7 +92,28 @@ test_that("get_targets errors for non tar_target objects", {
 
     expect_error(
         get_targets(path = script_dir),
-        "must inherit from 'tar_target'"
+        "not all elements inherit from 'tar_target'"
+    )
+})
+
+test_that("get_targets errors for list with non tar_target elements", {
+    skip_if_not_installed("targets")
+
+    temp_dir <- tempfile()
+    dir.create(temp_dir)
+    on.exit(unlink(temp_dir, recursive = TRUE))
+
+    script_dir <- file.path(temp_dir, "script")
+    dir.create(script_dir, recursive = TRUE)
+
+    writeLines(
+        "targets_mixed <- list(targets::tar_target(alpha, 1), 'not a target')",
+        file.path(script_dir, "_targets_mixed.R")
+    )
+
+    expect_error(
+        get_targets(path = script_dir),
+        "not all elements inherit from 'tar_target'"
     )
 })
 
@@ -121,4 +142,26 @@ test_that("get_targets errors for duplicate internal target names", {
         get_targets(path = c(script_dir, source_dir)),
         "Duplicate internal target names"
     )
+})
+
+test_that("get_targets handles list of tar_target objects from single file", {
+    skip_if_not_installed("targets")
+
+    temp_dir <- tempfile()
+    dir.create(temp_dir)
+    on.exit(unlink(temp_dir, recursive = TRUE))
+
+    script_dir <- file.path(temp_dir, "script")
+    dir.create(script_dir, recursive = TRUE)
+
+    writeLines(
+        "targets_multi <- list(targets::tar_target(alpha, 1), targets::tar_target(beta, 2))",
+        file.path(script_dir, "_targets_multi.R")
+    )
+
+    result <- get_targets(path = script_dir)
+
+    expect_type(result, "list")
+    expect_length(result, 2)
+    expect_true(all(vapply(result, inherits, logical(1), what = "tar_target")))
 })
