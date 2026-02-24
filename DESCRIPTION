@@ -13,7 +13,9 @@ URL: https://myproject.bangyou.me/,
 BugReports: https://github.com/byzheng/myproject/issues
 Encoding: UTF-8
 Imports:
-    here
+    here,
+    targets,
+    rlang
 Depends:
     R (>= 4.1.0)
 RoxygenNote: 7.3.3
