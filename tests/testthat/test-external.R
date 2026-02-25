@@ -1,8 +1,8 @@
-test_that("create_hpc_sentinel creates valid sentinel file", {
+test_that("create_external_sentinel creates valid sentinel file", {
     skip_if_not_installed("jsonlite")
     
     # Create a test project structure in temp directory
-    test_proj <- tempfile("hpc_test_")
+    test_proj <- tempfile("external_test_")
     dir.create(test_proj)
     
     old_wd <- getwd()
@@ -21,17 +21,17 @@ test_that("create_hpc_sentinel creates valid sentinel file", {
     saveRDS(iris, "data/input2.rds")
     
     # Create sentinel
-    result <- create_hpc_sentinel(
-        sentinel_path = ".hpc/sentinel.json",
+    result <- create_external_sentinel(
+        sentinel_path = ".external/sentinel.json",
         input_files = c("data/input1.rds", "data/input2.rds"),
         metadata = list(job_id = "12345", nodes = 4)
     )
     
-    expect_equal(result, ".hpc/sentinel.json")
-    expect_true(file.exists(".hpc/sentinel.json"))
+    expect_equal(result, ".external/sentinel.json")
+    expect_true(file.exists(".external/sentinel.json"))
     
     # Read and validate contents
-    sentinel_data <- jsonlite::read_json(".hpc/sentinel.json")
+    sentinel_data <- jsonlite::read_json(".external/sentinel.json")
     expect_true("completed_at" %in% names(sentinel_data))
     expect_true("input_files" %in% names(sentinel_data))
     expect_true("metadata" %in% names(sentinel_data))
@@ -42,22 +42,22 @@ test_that("create_hpc_sentinel creates valid sentinel file", {
     expect_true("data/input1.rds" %in% names(sentinel_data$input_files))
 })
 
-test_that("create_hpc_sentinel validates input_files", {
+test_that("create_external_sentinel validates input_files", {
     temp_dir <- tempdir()
     sentinel_path <- file.path(temp_dir, "test_sentinel.json")
     
     expect_error(
-        create_hpc_sentinel(sentinel_path, character(0)),
+        create_external_sentinel(sentinel_path, character(0)),
         "length.*> 0"
     )
     
     expect_error(
-        create_hpc_sentinel(sentinel_path, 123),
+        create_external_sentinel(sentinel_path, 123),
         "is.character.*input_files"
     )
 })
 
-test_that("create_hpc_sentinel warns about missing input files", {
+test_that("create_external_sentinel warns about missing input files", {
     skip_if_not_installed("jsonlite")
     
     temp_dir <- tempdir()
@@ -65,14 +65,14 @@ test_that("create_hpc_sentinel warns about missing input files", {
     nonexistent_file <- file.path(temp_dir, "does_not_exist.rds")
     
     expect_warning(
-        create_hpc_sentinel(sentinel_path, nonexistent_file),
+        create_external_sentinel(sentinel_path, nonexistent_file),
         "Input file not found"
     )
     
     unlink(sentinel_path)
 })
 
-test_that("check_hpc_sentinel validates existing sentinel", {
+test_that("check_external_sentinel validates existing sentinel", {
     skip_if_not_installed("jsonlite")
     
     temp_dir <- tempdir()
@@ -83,18 +83,18 @@ test_that("check_hpc_sentinel validates existing sentinel", {
     saveRDS(mtcars, input1)
     
     # Create sentinel
-    create_hpc_sentinel(sentinel_path, input1)
+    create_external_sentinel(sentinel_path, input1)
     
     # Check should pass
-    result <- check_hpc_sentinel(sentinel_path, input1)
-    expect_identical(result, sentinel_path)
+    result <- check_external_sentinel(sentinel_path, input1)
+    expect_equal(normalizePath(result, winslash = "/"), normalizePath(sentinel_path, winslash = "/"))
     
     # Clean up
     unlink(sentinel_path)
     unlink(input1)
 })
 
-test_that("check_hpc_sentinel stops when sentinel missing", {
+test_that("check_external_sentinel stops when sentinel missing", {
     skip_if_not_installed("jsonlite")
     
     temp_dir <- tempdir()
@@ -104,14 +104,14 @@ test_that("check_hpc_sentinel stops when sentinel missing", {
     saveRDS(mtcars, input1)
     
     expect_error(
-        check_hpc_sentinel(sentinel_path, input1, on_missing = "stop"),
-        "HPC job not completed yet"
+        check_external_sentinel(sentinel_path, input1, on_missing = "stop"),
+        "External process not completed yet"
     )
     
     unlink(input1)
 })
 
-test_that("check_hpc_sentinel warns when sentinel missing and on_missing='warn'", {
+test_that("check_external_sentinel warns when sentinel missing and on_missing='warn'", {
     skip_if_not_installed("jsonlite")
     
     temp_dir <- tempdir()
@@ -121,15 +121,15 @@ test_that("check_hpc_sentinel warns when sentinel missing and on_missing='warn'"
     saveRDS(mtcars, input1)
     
     expect_warning(
-        result <- check_hpc_sentinel(sentinel_path, input1, on_missing = "warn"),
-        "HPC job not completed yet"
+        result <- check_external_sentinel(sentinel_path, input1, on_missing = "warn"),
+        "External process not completed yet"
     )
     expect_null(result)
     
     unlink(input1)
 })
 
-test_that("check_hpc_sentinel detects stale inputs", {
+test_that("check_external_sentinel detects stale inputs", {
     skip_if_not_installed("jsonlite")
     
     temp_dir <- tempdir()
@@ -138,15 +138,15 @@ test_that("check_hpc_sentinel detects stale inputs", {
     
     # Create input and sentinel
     saveRDS(mtcars, input1)
-    create_hpc_sentinel(sentinel_path, input1)
+    create_external_sentinel(sentinel_path, input1)
     
     # Wait and modify input file (need >1 sec for staleness detection)
     Sys.sleep(1.5)
     saveRDS(iris, input1)
     
     expect_error(
-        check_hpc_sentinel(sentinel_path, input1, on_stale = "stop"),
-        "Input data changed after HPC job completed"
+        check_external_sentinel(sentinel_path, input1, on_stale = "stop"),
+        "Input data changed after external process completed"
     )
     
     # Clean up
@@ -154,7 +154,7 @@ test_that("check_hpc_sentinel detects stale inputs", {
     unlink(input1)
 })
 
-test_that("check_hpc_sentinel deletes stale sentinel when on_stale='delete'", {
+test_that("check_external_sentinel deletes stale sentinel when on_stale='delete'", {
     skip_if_not_installed("jsonlite")
     
     temp_dir <- tempdir()
@@ -163,15 +163,15 @@ test_that("check_hpc_sentinel deletes stale sentinel when on_stale='delete'", {
     
     # Create input and sentinel
     saveRDS(mtcars, input1)
-    create_hpc_sentinel(sentinel_path, input1)
+    create_external_sentinel(sentinel_path, input1)
     
     # Wait and modify input file (need >1 sec for staleness detection)
     Sys.sleep(1.5)
     saveRDS(iris, input1)
     
     expect_error(
-        check_hpc_sentinel(sentinel_path, input1, on_stale = "delete"),
-        "Input data changed after HPC job completed"
+        check_external_sentinel(sentinel_path, input1, on_stale = "delete"),
+        "Input data changed after external process completed"
     )
     
     # Sentinel should be deleted
@@ -181,7 +181,7 @@ test_that("check_hpc_sentinel deletes stale sentinel when on_stale='delete'", {
     unlink(input1)
 })
 
-test_that("check_hpc_sentinel detects missing tracked inputs", {
+test_that("check_external_sentinel detects missing tracked inputs", {
     skip_if_not_installed("jsonlite")
     
     temp_dir <- tempdir()
@@ -191,14 +191,14 @@ test_that("check_hpc_sentinel detects missing tracked inputs", {
     
     # Create only input1, not input2
     saveRDS(mtcars, input1)
-    create_hpc_sentinel(sentinel_path, input1)
+    create_external_sentinel(sentinel_path, input1)
     
     # Now create input2 and check with both inputs
     write.csv(iris, input2, row.names = FALSE)
     
     expect_error(
-        check_hpc_sentinel(sentinel_path, c(input1, input2), on_stale = "stop"),
-        "HPC sentinel is incomplete"
+        check_external_sentinel(sentinel_path, c(input1, input2), on_stale = "stop"),
+        "External process sentinel is incomplete"
     )
     
     # Clean up
@@ -206,7 +206,7 @@ test_that("check_hpc_sentinel detects missing tracked inputs", {
     unlink(c(input1, input2))
 })
 
-test_that("check_hpc_sentinel handles corrupted sentinel", {
+test_that("check_external_sentinel handles corrupted sentinel", {
     skip_if_not_installed("jsonlite")
     
     temp_dir <- tempdir()
@@ -218,7 +218,7 @@ test_that("check_hpc_sentinel handles corrupted sentinel", {
     saveRDS(mtcars, input1)
     
     expect_error(
-        check_hpc_sentinel(sentinel_path, input1),
+        check_external_sentinel(sentinel_path, input1),
         "Sentinel file corrupted"
     )
     
@@ -229,22 +229,22 @@ test_that("check_hpc_sentinel handles corrupted sentinel", {
     unlink(input1)
 })
 
-test_that("check_hpc_sentinel validates input_files parameter", {
+test_that("check_external_sentinel validates input_files parameter", {
     temp_dir <- tempdir()
     sentinel_path <- file.path(temp_dir, "test_sentinel.json")
     
     expect_error(
-        check_hpc_sentinel(sentinel_path, character(0)),
+        check_external_sentinel(sentinel_path, character(0)),
         "length.*> 0"
     )
     
     expect_error(
-        check_hpc_sentinel(sentinel_path, 123),
+        check_external_sentinel(sentinel_path, 123),
         "is.character.*input_files"
     )
 })
 
-test_that("get_hpc_sentinel_metadata retrieves metadata", {
+test_that("get_external_sentinel_metadata retrieves metadata", {
     skip_if_not_installed("jsonlite")
     
     temp_dir <- tempdir()
@@ -253,32 +253,32 @@ test_that("get_hpc_sentinel_metadata retrieves metadata", {
     
     # Create input and sentinel
     saveRDS(mtcars, input1)
-    create_hpc_sentinel(
+    create_external_sentinel(
         sentinel_path, 
         input1,
-        metadata = list(job_id = "99999", cluster = "hpc01")
+        metadata = list(job_id = "99999", cluster = "external01")
     )
     
     # Get metadata
-    meta <- get_hpc_sentinel_metadata(sentinel_path)
+    meta <- get_external_sentinel_metadata(sentinel_path)
     
     expect_true("completed_at" %in% names(meta))
     expect_true("input_files" %in% names(meta))
     expect_true("metadata" %in% names(meta))
     expect_equal(meta$metadata$job_id, "99999")
-    expect_equal(meta$metadata$cluster, "hpc01")
+    expect_equal(meta$metadata$cluster, "external01")
     
     # Clean up
     unlink(sentinel_path)
     unlink(input1)
 })
 
-test_that("get_hpc_sentinel_metadata stops when file missing", {
+test_that("get_external_sentinel_metadata stops when file missing", {
     temp_dir <- tempdir()
     sentinel_path <- file.path(temp_dir, "nonexistent_sentinel.json")
     
     expect_error(
-        get_hpc_sentinel_metadata(sentinel_path),
+        get_external_sentinel_metadata(sentinel_path),
         "Sentinel file not found"
     )
 })

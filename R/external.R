@@ -1,18 +1,19 @@
-#' Create HPC Sentinel File with Input Tracking
+#' Create External Sentinel File with Input Tracking
 #'
 #' @param sentinel_path Path to sentinel file, either relative to project root or absolute
 #' @param input_files Character vector of input file paths, either relative to project root or absolute
 #' @param metadata Optional list of additional metadata to store
 #'
 #' @details
+#' Tracks external dependencies (HPC jobs, shell scripts, database exports, etc.) using sentinel files.
 #' All paths are resolved relative to the project root using `here::here()`. Absolute paths 
 #' are automatically converted to relative paths for storage, ensuring sentinels work consistently 
 #' across platforms (Windows/Linux/Mac) and different working directories.
 #' 
 #' Examples of valid calls:
-#' - Relative paths: `create_hpc_sentinel(".hpc/job.json", c("data/raw.csv", "params.json"))`
-#' - Absolute paths: `create_hpc_sentinel("/full/path/.hpc/job.json", c("/full/path/data/raw.csv"))`
-#' - Mixed: `create_hpc_sentinel("./hpc/job.json", "/full/path/data/raw.csv")`
+#' - Relative paths: `create_external_sentinel(".external/job.json", c("data/raw.csv", "params.json"))`
+#' - Absolute paths: `create_external_sentinel("/full/path/.external/job.json", c("/full/path/data/raw.csv"))`
+#' - Mixed: `create_external_sentinel("./external/job.json", "/full/path/data/raw.csv")`
 #'
 #' Creates a JSON sentinel file that records:
 #' - Completion timestamp
@@ -22,19 +23,19 @@
 #' @examples
 #' \dontrun{
 #' # Using relative paths (recommended)
-#' create_hpc_sentinel(
-#'   sentinel_path = ".hpc/job_complete.json",
+#' create_external_sentinel(
+#'   sentinel_path = ".external/job_complete.json",
 #'   input_files = c("data/raw.csv", "params.json"),
 #'   metadata = list(job_id = "12345", nodes = 4)
 #' )
 #' }
 #' @export 
-create_hpc_sentinel <- function(sentinel_path, input_files, metadata = list()) {
+create_external_sentinel <- function(sentinel_path, input_files, metadata = list()) {
     stopifnot(is.character(input_files), length(input_files) > 0)
     
-    # Resolve paths relative to project root
-    sentinel_abs <- normalizePath(here::here(sentinel_path), winslash = "/")
-    input_abs <- normalizePath(here::here(input_files), winslash = "/")
+    # Resolve paths relative to project root (suppress warnings for non-existent paths)
+    sentinel_abs <- suppressWarnings(normalizePath(here::here(sentinel_path), winslash = "/"))
+    input_abs <- suppressWarnings(normalizePath(here::here(input_files), winslash = "/"))
     project_root <- normalizePath(here::here(), winslash = "/")
     
     # Convert absolute paths back to relative for storage (portability)
@@ -79,7 +80,7 @@ create_hpc_sentinel <- function(sentinel_path, input_files, metadata = list()) {
 }
 
 
-#' Check HPC Sentinel Staleness for targets
+#' Check External Sentinel Staleness for targets
 #'
 #' @param sentinel_path Path to sentinel file, either relative to project root or absolute
 #' @param input_files Character vector of input file paths, either relative to project root or absolute
@@ -95,7 +96,7 @@ create_hpc_sentinel <- function(sentinel_path, input_files, metadata = list()) {
 #'
 #' Validates sentinel by checking:
 #' 1. Sentinel file exists
-#' 2. Input files haven't changed since HPC job ran
+#' 2. Input files haven't changed since external process ran
 #' 3. All expected input files are tracked in sentinel
 #'
 #' If validation fails, provides clear error message and optionally deletes stale sentinel.
@@ -103,13 +104,13 @@ create_hpc_sentinel <- function(sentinel_path, input_files, metadata = list()) {
 #' @examples
 #' \dontrun{
 #' # Using relative paths (recommended)
-#' check_hpc_sentinel(
-#'   sentinel_path = ".hpc/job_complete.json",
+#' check_external_sentinel(
+#'   sentinel_path = ".external/job_complete.json",
 #'   input_files = c("data/raw.csv", "params.json")
 #' )
 #' }
 #' @export
-check_hpc_sentinel <- function(sentinel_path, 
+check_external_sentinel <- function(sentinel_path, 
                                input_files,
                                on_missing = c("stop", "warn"),
                                on_stale = c("stop", "warn", "delete")) {
@@ -118,13 +119,12 @@ check_hpc_sentinel <- function(sentinel_path,
     on_missing <- match.arg(on_missing)
     on_stale <- match.arg(on_stale)
     
-    # Resolve paths relative to project root
-    sentinel_abs <- normalizePath(here::here(sentinel_path), winslash = "/")
-    input_abs <- normalizePath(here::here(input_files), winslash = "/")
+    # Resolve paths relative to project root (suppress warnings for non-existent paths)
+    sentinel_abs <- suppressWarnings(normalizePath(here::here(sentinel_path), winslash = "/"))
+    input_abs <- suppressWarnings(normalizePath(here::here(input_files), winslash = "/"))
     project_root <- normalizePath(here::here(), winslash = "/")
     
-    
-    # Convert absolute paths back to relative for comparison with stored paths
+    # Convert absolute paths back to relative for error messages and return value
     sentinel_rel <- if (grepl("^/|^[A-Z]:", sentinel_path)) {
         make_relative(sentinel_abs, project_root)
     } else {
@@ -140,9 +140,9 @@ check_hpc_sentinel <- function(sentinel_path,
     # Check if sentinel exists
     if (!file.exists(sentinel_abs)) {
         msg <- paste0(
-            "HPC job not completed yet.\n",
+            "External process not completed yet.\n",
             "Sentinel file not found: ", sentinel_rel, "\n",
-            "Run HPC script to create it."
+            "Run external process to create it."
         )
         if (on_missing == "stop") stop(msg, call. = FALSE)
         warning(msg)
@@ -156,7 +156,7 @@ check_hpc_sentinel <- function(sentinel_path,
         unlink(sentinel_abs)
         stop(
             "Sentinel file corrupted: ", sentinel_rel, "\n",
-            "Deleted. Re-run HPC job.\n",
+            "Deleted. Re-run external process.\n",
             "Error: ", e$message,
             call. = FALSE
         )
@@ -167,7 +167,7 @@ check_hpc_sentinel <- function(sentinel_path,
         unlink(sentinel_abs)
         stop(
             "Sentinel file has invalid format (missing input_files).\n",
-            "Deleted. Re-run HPC job.",
+            "Deleted. Re-run external process.",
             call. = FALSE
         )
     }
@@ -179,10 +179,10 @@ check_hpc_sentinel <- function(sentinel_path,
     if (length(missing_inputs) > 0) {
         if (on_stale == "delete") unlink(sentinel_abs)
         msg <- paste0(
-            "HPC sentinel is incomplete.\n",
+            "External process sentinel is incomplete.\n",
             "Missing tracked inputs: ", paste(missing_inputs, collapse = ", "), "\n",
             if (on_stale == "delete") "Deleted sentinel. " else "",
-            "Re-run HPC job."
+            "Re-run external process."
         )
         if (on_stale == "stop" || on_stale == "delete") {
             stop(msg, call. = FALSE)
@@ -217,11 +217,11 @@ check_hpc_sentinel <- function(sentinel_path,
     if (length(stale_inputs) > 0) {
         if (on_stale == "delete") unlink(sentinel_abs)
         msg <- paste0(
-            "Input data changed after HPC job completed.\n",
+            "Input data changed after external process completed.\n",
             "Stale inputs:\n  ",
             paste(stale_inputs, collapse = "\n  "), "\n",
             if (on_stale == "delete") "Deleted sentinel. " else "",
-            "Re-run HPC job."
+            "Re-run external process."
         )
         if (on_stale == "stop" || on_stale == "delete") {
             stop(msg, call. = FALSE)
@@ -235,7 +235,7 @@ check_hpc_sentinel <- function(sentinel_path,
 }
 
 
-#' Get Sentinel Metadata
+#' Get External Sentinel Metadata
 #'
 #' @param sentinel_path Path to sentinel file, either relative to project root or absolute
 #' @return List with completion time, input files (as relative paths), and custom metadata
@@ -246,11 +246,11 @@ check_hpc_sentinel <- function(sentinel_path,
 #'
 #' @examples
 #' \dontrun{
-#' meta <- get_hpc_sentinel_metadata(".hpc/job_complete.json")
-#' cat("HPC completed at:", meta$completed_at, "\n")
+#' meta <- get_external_sentinel_metadata(".external/job_complete.json")
+#' cat("External process completed at:", meta$completed_at, "\n")
 #' }
 #' @export 
-get_hpc_sentinel_metadata <- function(sentinel_path) {
+get_external_sentinel_metadata <- function(sentinel_path) {
     sentinel_abs <- here::here(sentinel_path)
     if (!file.exists(sentinel_abs)) {
         stop("Sentinel file not found: ", sentinel_path, call. = FALSE)
