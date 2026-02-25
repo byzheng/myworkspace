@@ -1,5 +1,6 @@
 test_that("create_external_sentinel creates valid sentinel file", {
     skip_if_not_installed("jsonlite")
+    skip_if_not_installed("here")
     
     # Create a test project structure in temp directory
     test_proj <- tempfile("external_test_")
@@ -13,7 +14,8 @@ test_that("create_external_sentinel creates valid sentinel file", {
     }, add = FALSE)
     
     # Initialize here anchor at project root
-    writeLines("", ".here")
+    writeLines("", "README.md")
+    here::i_am("README.md")
     
     # Create input files
     dir.create("data", showWarnings = FALSE)
@@ -43,8 +45,24 @@ test_that("create_external_sentinel creates valid sentinel file", {
 })
 
 test_that("create_external_sentinel validates input_files", {
-    temp_dir <- tempdir()
-    sentinel_path <- file.path(temp_dir, "test_sentinel.json")
+    skip_if_not_installed("jsonlite")
+    skip_if_not_installed("here")
+    
+    # Create a test project structure
+    test_proj <- tempfile("external_test_")
+    dir.create(test_proj)
+    
+    old_wd <- getwd()
+    setwd(test_proj)
+    on.exit({
+        setwd(old_wd)
+        unlink(test_proj, recursive = TRUE, force = TRUE)
+    }, add = FALSE)
+    
+    writeLines("", "README.md")
+    here::i_am("README.md")
+    
+    sentinel_path <- file.path(test_proj, "test_sentinel.json")
     
     expect_error(
         create_external_sentinel(sentinel_path, character(0)),
@@ -59,47 +77,83 @@ test_that("create_external_sentinel validates input_files", {
 
 test_that("create_external_sentinel warns about missing input files", {
     skip_if_not_installed("jsonlite")
+    skip_if_not_installed("here")
     
-    temp_dir <- tempdir()
-    sentinel_path <- file.path(temp_dir, "test_sentinel.json")
-    nonexistent_file <- file.path(temp_dir, "does_not_exist.rds")
+    # Create a test project structure
+    test_proj <- tempfile("external_test_")
+    dir.create(test_proj)
+    
+    old_wd <- getwd()
+    setwd(test_proj)
+    on.exit({
+        setwd(old_wd)
+        unlink(test_proj, recursive = TRUE, force = TRUE)
+    }, add = FALSE)
+    
+    writeLines("", "README.md")
+    here::i_am("README.md")
+    
+    sentinel_path <- file.path(test_proj, "test_sentinel.json")
+    nonexistent_file <- file.path(test_proj, "does_not_exist.rds")
     
     expect_warning(
         create_external_sentinel(sentinel_path, nonexistent_file),
         "Input file not found"
     )
-    
-    unlink(sentinel_path)
 })
 
 test_that("check_external_sentinel validates existing sentinel", {
     skip_if_not_installed("jsonlite")
+    skip_if_not_installed("here")
     
-    temp_dir <- tempdir()
-    sentinel_path <- file.path(temp_dir, "test_sentinel.json")
-    input1 <- tempfile(tmpdir = temp_dir, fileext = ".rds")
+    # Create a test project structure
+    test_proj <- tempfile("external_test_")
+    dir.create(test_proj)
+    
+    old_wd <- getwd()
+    setwd(test_proj)
+    on.exit({
+        setwd(old_wd)
+        unlink(test_proj, recursive = TRUE, force = TRUE)
+    }, add = FALSE)
+    
+    writeLines("", "README.md")
+    here::i_am("README.md")
+    
+    sentinel_path <- file.path(test_proj, "test_sentinel.json")
+    input1 <- tempfile(tmpdir = test_proj, fileext = ".rds")
     
     # Create mock input file
     saveRDS(mtcars, input1)
-    
     # Create sentinel
     create_external_sentinel(sentinel_path, input1)
     
     # Check should pass
     result <- check_external_sentinel(sentinel_path, input1)
     expect_equal(normalizePath(result, winslash = "/"), normalizePath(sentinel_path, winslash = "/"))
-    
-    # Clean up
-    unlink(sentinel_path)
-    unlink(input1)
 })
+
 
 test_that("check_external_sentinel stops when sentinel missing", {
     skip_if_not_installed("jsonlite")
+    skip_if_not_installed("here")
     
-    temp_dir <- tempdir()
-    sentinel_path <- file.path(temp_dir, "nonexistent_sentinel.json")
-    input1 <- tempfile(tmpdir = temp_dir, fileext = ".rds")
+    # Create a test project structure
+    test_proj <- tempfile("external_test_")
+    dir.create(test_proj)
+    
+    old_wd <- getwd()
+    setwd(test_proj)
+    on.exit({
+        setwd(old_wd)
+        unlink(test_proj, recursive = TRUE, force = TRUE)
+    }, add = FALSE)
+    
+    writeLines("", "README.md")
+    here::i_am("README.md")
+    
+    sentinel_path <- file.path(test_proj, "nonexistent_sentinel.json")
+    input1 <- tempfile(tmpdir = test_proj, fileext = ".rds")
     
     saveRDS(mtcars, input1)
     
@@ -107,16 +161,28 @@ test_that("check_external_sentinel stops when sentinel missing", {
         check_external_sentinel(sentinel_path, input1, on_missing = "stop"),
         "External process not completed yet"
     )
-    
-    unlink(input1)
 })
 
 test_that("check_external_sentinel warns when sentinel missing and on_missing='warn'", {
     skip_if_not_installed("jsonlite")
+    skip_if_not_installed("here")
     
-    temp_dir <- tempdir()
-    sentinel_path <- file.path(temp_dir, "nonexistent_sentinel.json")
-    input1 <- tempfile(tmpdir = temp_dir, fileext = ".rds")
+    # Create a test project structure
+    test_proj <- tempfile("external_test_")
+    dir.create(test_proj)
+    
+    old_wd <- getwd()
+    setwd(test_proj)
+    on.exit({
+        setwd(old_wd)
+        unlink(test_proj, recursive = TRUE, force = TRUE)
+    }, add = FALSE)
+    
+    writeLines("", "README.md")
+    here::i_am("README.md")
+    
+    sentinel_path <- file.path(test_proj, "nonexistent_sentinel.json")
+    input1 <- tempfile(tmpdir = test_proj, fileext = ".rds")
     
     saveRDS(mtcars, input1)
     
@@ -125,16 +191,28 @@ test_that("check_external_sentinel warns when sentinel missing and on_missing='w
         "External process not completed yet"
     )
     expect_null(result)
-    
-    unlink(input1)
 })
 
 test_that("check_external_sentinel detects stale inputs", {
     skip_if_not_installed("jsonlite")
+    skip_if_not_installed("here")
     
-    temp_dir <- tempdir()
-    sentinel_path <- file.path(temp_dir, "test_sentinel.json")
-    input1 <- tempfile(tmpdir = temp_dir, fileext = ".rds")
+    # Create a test project structure
+    test_proj <- tempfile("external_test_")
+    dir.create(test_proj)
+    
+    old_wd <- getwd()
+    setwd(test_proj)
+    on.exit({
+        setwd(old_wd)
+        unlink(test_proj, recursive = TRUE, force = TRUE)
+    }, add = FALSE)
+    
+    writeLines("", "README.md")
+    here::i_am("README.md")
+    
+    sentinel_path <- file.path(test_proj, "test_sentinel.json")
+    input1 <- tempfile(tmpdir = test_proj, fileext = ".rds")
     
     # Create input and sentinel
     saveRDS(mtcars, input1)
@@ -148,18 +226,28 @@ test_that("check_external_sentinel detects stale inputs", {
         check_external_sentinel(sentinel_path, input1, on_stale = "stop"),
         "Input data changed after external process completed"
     )
-    
-    # Clean up
-    unlink(sentinel_path)
-    unlink(input1)
 })
 
 test_that("check_external_sentinel deletes stale sentinel when on_stale='delete'", {
     skip_if_not_installed("jsonlite")
+    skip_if_not_installed("here")
     
-    temp_dir <- tempdir()
-    sentinel_path <- file.path(temp_dir, "test_sentinel.json")
-    input1 <- tempfile(tmpdir = temp_dir, fileext = ".rds")
+    # Create a test project structure
+    test_proj <- tempfile("external_test_")
+    dir.create(test_proj)
+    
+    old_wd <- getwd()
+    setwd(test_proj)
+    on.exit({
+        setwd(old_wd)
+        unlink(test_proj, recursive = TRUE, force = TRUE)
+    }, add = FALSE)
+    
+    writeLines("", "README.md")
+    here::i_am("README.md")
+    
+    sentinel_path <- file.path(test_proj, "test_sentinel.json")
+    input1 <- tempfile(tmpdir = test_proj, fileext = ".rds")
     
     # Create input and sentinel
     saveRDS(mtcars, input1)
@@ -183,11 +271,25 @@ test_that("check_external_sentinel deletes stale sentinel when on_stale='delete'
 
 test_that("check_external_sentinel detects missing tracked inputs", {
     skip_if_not_installed("jsonlite")
+    skip_if_not_installed("here")
     
-    temp_dir <- tempdir()
-    sentinel_path <- file.path(temp_dir, "test_sentinel.json")
-    input1 <- tempfile(tmpdir = temp_dir, fileext = ".rds")
-    input2 <- tempfile(tmpdir = temp_dir, fileext = ".csv")
+    # Create a test project structure
+    test_proj <- tempfile("external_test_")
+    dir.create(test_proj)
+    
+    old_wd <- getwd()
+    setwd(test_proj)
+    on.exit({
+        setwd(old_wd)
+        unlink(test_proj, recursive = TRUE, force = TRUE)
+    }, add = FALSE)
+    
+    writeLines("", "README.md")
+    here::i_am("README.md")
+    
+    sentinel_path <- file.path(test_proj, "test_sentinel.json")
+    input1 <- tempfile(tmpdir = test_proj, fileext = ".rds")
+    input2 <- tempfile(tmpdir = test_proj, fileext = ".csv")
     
     # Create only input1, not input2
     saveRDS(mtcars, input1)
@@ -200,18 +302,28 @@ test_that("check_external_sentinel detects missing tracked inputs", {
         check_external_sentinel(sentinel_path, c(input1, input2), on_stale = "stop"),
         "External process sentinel is incomplete"
     )
-    
-    # Clean up
-    unlink(sentinel_path)
-    unlink(c(input1, input2))
 })
 
 test_that("check_external_sentinel handles corrupted sentinel", {
     skip_if_not_installed("jsonlite")
+    skip_if_not_installed("here")
     
-    temp_dir <- tempdir()
-    sentinel_path <- file.path(temp_dir, "test_sentinel.json")
-    input1 <- tempfile(tmpdir = temp_dir, fileext = ".rds")
+    # Create a test project structure
+    test_proj <- tempfile("external_test_")
+    dir.create(test_proj)
+    
+    old_wd <- getwd()
+    setwd(test_proj)
+    on.exit({
+        setwd(old_wd)
+        unlink(test_proj, recursive = TRUE, force = TRUE)
+    }, add = FALSE)
+    
+    writeLines("", "README.md")
+    here::i_am("README.md")
+    
+    sentinel_path <- file.path(test_proj, "test_sentinel.json")
+    input1 <- tempfile(tmpdir = test_proj, fileext = ".rds")
     
     # Create corrupted JSON file
     writeLines("not valid json {{{", sentinel_path)
@@ -230,8 +342,23 @@ test_that("check_external_sentinel handles corrupted sentinel", {
 })
 
 test_that("check_external_sentinel validates input_files parameter", {
-    temp_dir <- tempdir()
-    sentinel_path <- file.path(temp_dir, "test_sentinel.json")
+    skip_if_not_installed("here")
+    
+    # Create a test project structure
+    test_proj <- tempfile("external_test_")
+    dir.create(test_proj)
+    
+    old_wd <- getwd()
+    setwd(test_proj)
+    on.exit({
+        setwd(old_wd)
+        unlink(test_proj, recursive = TRUE, force = TRUE)
+    }, add = FALSE)
+    
+    writeLines("", "README.md")
+    here::i_am("README.md")
+    
+    sentinel_path <- file.path(test_proj, "test_sentinel.json")
     
     expect_error(
         check_external_sentinel(sentinel_path, character(0)),
@@ -246,10 +373,24 @@ test_that("check_external_sentinel validates input_files parameter", {
 
 test_that("get_external_sentinel_metadata retrieves metadata", {
     skip_if_not_installed("jsonlite")
+    skip_if_not_installed("here")
     
-    temp_dir <- tempdir()
-    sentinel_path <- file.path(temp_dir, "test_sentinel.json")
-    input1 <- tempfile(tmpdir = temp_dir, fileext = ".rds")
+    # Create a test project structure
+    test_proj <- tempfile("external_test_")
+    dir.create(test_proj)
+    
+    old_wd <- getwd()
+    setwd(test_proj)
+    on.exit({
+        setwd(old_wd)
+        unlink(test_proj, recursive = TRUE, force = TRUE)
+    }, add = FALSE)
+    
+    writeLines("", "README.md")
+    here::i_am("README.md")
+    
+    sentinel_path <- file.path(test_proj, "test_sentinel.json")
+    input1 <- tempfile(tmpdir = test_proj, fileext = ".rds")
     
     # Create input and sentinel
     saveRDS(mtcars, input1)
@@ -267,15 +408,26 @@ test_that("get_external_sentinel_metadata retrieves metadata", {
     expect_true("metadata" %in% names(meta))
     expect_equal(meta$metadata$job_id, "99999")
     expect_equal(meta$metadata$cluster, "external01")
-    
-    # Clean up
-    unlink(sentinel_path)
-    unlink(input1)
 })
 
 test_that("get_external_sentinel_metadata stops when file missing", {
-    temp_dir <- tempdir()
-    sentinel_path <- file.path(temp_dir, "nonexistent_sentinel.json")
+    skip_if_not_installed("here")
+    
+    # Create a test project structure
+    test_proj <- tempfile("external_test_")
+    dir.create(test_proj)
+    
+    old_wd <- getwd()
+    setwd(test_proj)
+    on.exit({
+        setwd(old_wd)
+        unlink(test_proj, recursive = TRUE, force = TRUE)
+    }, add = FALSE)
+    
+    writeLines("", "README.md")
+    here::i_am("README.md")
+    
+    sentinel_path <- file.path(test_proj, "nonexistent_sentinel.json")
     
     expect_error(
         get_external_sentinel_metadata(sentinel_path),

@@ -34,9 +34,9 @@ create_external_sentinel <- function(sentinel_path, input_files, metadata = list
     stopifnot(is.character(input_files), length(input_files) > 0)
     
     # Resolve paths relative to project root (suppress warnings for non-existent paths)
-    sentinel_abs <- suppressWarnings(normalizePath(here::here(sentinel_path), winslash = "/"))
-    input_abs <- suppressWarnings(normalizePath(here::here(input_files), winslash = "/"))
-    project_root <- normalizePath(here::here(), winslash = "/")
+    sentinel_abs <- suppressWarnings(normalizePath(suppressWarnings(here::here(sentinel_path)), winslash = "/"))
+    input_abs <- suppressWarnings(normalizePath(suppressWarnings(here::here(input_files)), winslash = "/"))
+    project_root <- suppressWarnings(normalizePath(suppressWarnings(here::here()), winslash = "/"))
     
     # Convert absolute paths back to relative for storage (portability)
     sentinel_rel <- if (grepl("^/|^[A-Z]:", sentinel_path)) {
@@ -120,9 +120,9 @@ check_external_sentinel <- function(sentinel_path,
     on_stale <- match.arg(on_stale)
     
     # Resolve paths relative to project root (suppress warnings for non-existent paths)
-    sentinel_abs <- suppressWarnings(normalizePath(here::here(sentinel_path), winslash = "/"))
-    input_abs <- suppressWarnings(normalizePath(here::here(input_files), winslash = "/"))
-    project_root <- normalizePath(here::here(), winslash = "/")
+    sentinel_abs <- suppressWarnings(normalizePath(suppressWarnings(here::here(sentinel_path)), winslash = "/"))
+    input_abs <- suppressWarnings(normalizePath(suppressWarnings(here::here(input_files)), winslash = "/"))
+    project_root <- suppressWarnings(normalizePath(suppressWarnings(here::here()), winslash = "/"))
     
     # Convert absolute paths back to relative for error messages and return value
     sentinel_rel <- if (grepl("^/|^[A-Z]:", sentinel_path)) {
@@ -251,7 +251,7 @@ check_external_sentinel <- function(sentinel_path,
 #' }
 #' @export 
 get_external_sentinel_metadata <- function(sentinel_path) {
-    sentinel_abs <- here::here(sentinel_path)
+    sentinel_abs <- suppressWarnings(here::here(sentinel_path))
     if (!file.exists(sentinel_abs)) {
         stop("Sentinel file not found: ", sentinel_path, call. = FALSE)
     }
@@ -262,8 +262,8 @@ get_external_sentinel_metadata <- function(sentinel_path) {
 
 # Helper function to convert absolute path to relative
 make_relative <- function(abs_path, root_dir) {
-    abs_path <- normalizePath(abs_path, winslash = "/")
-    root_dir <- normalizePath(root_dir, winslash = "/")
+    abs_path <- suppressWarnings(normalizePath(abs_path, winslash = "/"))
+    root_dir <- suppressWarnings(normalizePath(root_dir, winslash = "/"))
     
     if (!grepl(paste0("^", gsub("\\\\", "\\\\\\\\", root_dir)), abs_path)) {
         return(abs_path) # Not under root, return as-is
