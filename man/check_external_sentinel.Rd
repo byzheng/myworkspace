@@ -31,9 +31,12 @@ All paths are resolved relative to the project root using `here::here()`. Absolu
 are automatically converted to relative paths for comparison with stored paths, ensuring
 consistency across platforms and working directories.
 
+All timestamps are compared in UTC, ensuring correct staleness detection even when sentinels 
+are shared across machines in different timezones.
+
 Validates sentinel by checking:
 1. Sentinel file exists
-2. Input files haven't changed since external process ran
+2. Input files haven't changed since external process ran (compared in UTC)
 3. All expected input files are tracked in sentinel
 
 If validation fails, provides clear error message and optionally deletes stale sentinel.

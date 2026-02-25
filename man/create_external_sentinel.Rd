@@ -22,14 +22,17 @@ All paths are resolved relative to the project root using `here::here()`. Absolu
 are automatically converted to relative paths for storage, ensuring sentinels work consistently 
 across platforms (Windows/Linux/Mac) and different working directories.
 
+All timestamps are stored in UTC to ensure consistency when sentinels are shared across 
+machines in different timezones (e.g., Sydney to Brisbane, or across international systems).
+
 Examples of valid calls:
 - Relative paths: `create_external_sentinel(".external/job.json", c("data/raw.csv", "params.json"))`
 - Absolute paths: `create_external_sentinel("/full/path/.external/job.json", c("/full/path/data/raw.csv"))`
 - Mixed: `create_external_sentinel("./external/job.json", "/full/path/data/raw.csv")`
 
 Creates a JSON sentinel file that records:
-- Completion timestamp
-- Input files (stored as relative paths) and their modification times
+- Completion timestamp (UTC)
+- Input files (stored as relative paths) and their modification times (UTC)
 - Optional custom metadata
 }
 \examples{
