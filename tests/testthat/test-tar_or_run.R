@@ -56,11 +56,18 @@ test_that("tar_or_run suppresses messages with quiet = TRUE", {
 test_that("tar_or_run reads target correctly", {
     skip_if_not_installed("targets")
 
-    # Create a temporary directory for targets project
-    temp_dir <- tempdir()
+    # Create a dedicated temporary directory for this test
+    temp_dir <- tempfile("targets_test")
+    dir.create(temp_dir)
     old_wd <- getwd()
+    
+    # Ensure cleanup happens even if test fails
+    on.exit({
+        setwd(old_wd)
+        unlink(temp_dir, recursive = TRUE, force = TRUE)
+    }, add = FALSE)
+    
     setwd(temp_dir)
-    on.exit(setwd(old_wd))
 
     # Create a simple _targets.R file
     targets_script <- "

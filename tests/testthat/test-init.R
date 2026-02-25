@@ -1,8 +1,8 @@
 test_that("init creates all directories", {
     # Create a temporary directory for testing
-    temp_dir <- tempfile()
+    temp_dir <- tempfile("init_test")
     dir.create(temp_dir)
-    on.exit(unlink(temp_dir, recursive = TRUE))
+    on.exit(unlink(temp_dir, recursive = TRUE, force = TRUE), add = FALSE)
 
     # Run init
     init("TestProject", root = temp_dir)
@@ -22,9 +22,9 @@ test_that("init creates all directories", {
 })
 
 test_that("init creates root index.qmd with correct content", {
-    temp_dir <- tempfile()
+    temp_dir <- tempfile("init_test")
     dir.create(temp_dir)
-    on.exit(unlink(temp_dir, recursive = TRUE))
+    on.exit(unlink(temp_dir, recursive = TRUE, force = TRUE), add = FALSE)
 
     project_name <- "TestProject"
     init(project_name, root = temp_dir)
@@ -42,9 +42,9 @@ test_that("init creates root index.qmd with correct content", {
 })
 
 test_that("init creates index.qmd in specified folders", {
-    temp_dir <- tempfile()
+    temp_dir <- tempfile("init_test")
     dir.create(temp_dir)
-    on.exit(unlink(temp_dir, recursive = TRUE))
+    on.exit(unlink(temp_dir, recursive = TRUE, force = TRUE), add = FALSE)
 
     init("TestProject", root = temp_dir)
 
@@ -63,9 +63,9 @@ test_that("init creates index.qmd in specified folders", {
 })
 
 test_that("init doesn't overwrite existing files", {
-    temp_dir <- tempfile()
+    temp_dir <- tempfile("init_test")
     dir.create(temp_dir)
-    on.exit(unlink(temp_dir, recursive = TRUE))
+    on.exit(unlink(temp_dir, recursive = TRUE, force = TRUE), add = FALSE)
 
     # Create an existing index.qmd with custom content
     root_index <- file.path(temp_dir, "index.qmd")
@@ -83,17 +83,23 @@ test_that("init doesn't overwrite existing files", {
     expect_equal(content, custom_content)
 })
 
-test_that("init works with here::here() default", {
-    # This test just checks that the function can be called without error
-    # when using the default root parameter
-    # We won't actually create files in the working directory
-    expect_error(init("TestProject", root = tempfile()))
+test_that("init requires existing root directory", {
+    # Test that init() fails when given a non-existent directory
+    nonexistent_dir <- tempfile("nonexistent")
+    
+    expect_error(
+        init("TestProject", root = nonexistent_dir),
+        "dir.exists\\(root\\) is not TRUE"
+    )
+    
+    # Ensure no directories were created
+    expect_false(dir.exists(nonexistent_dir))
 })
 
 test_that("init index.qmd files have correct titles", {
-    temp_dir <- tempfile()
+    temp_dir <- tempfile("init_test")
     dir.create(temp_dir)
-    on.exit(unlink(temp_dir, recursive = TRUE))
+    on.exit(unlink(temp_dir, recursive = TRUE, force = TRUE), add = FALSE)
 
     init("TestProject", root = temp_dir)
 
