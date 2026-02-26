@@ -152,14 +152,9 @@ render_modified_quarto <- function(
         message("Dry run: ", length(changed), " file(s) would be rendered.")
         return(invisible(changed))
     }
-    changed_full_path <- file.path(changed)
-    config <- yaml::read_yaml(quarto_yml)
-    config$project$render <- changed_full_path
-    tmp_yml <- "_quarto_adhsdfsljshkfekafdk.yml"
-    yaml::write_yaml(config, tmp_yml)
-    on.exit(unlink(tmp_yml), add = TRUE)
-    tryCatch({
-        quarto::quarto_render(profile = tmp_yml)
+    # Render changed files using system2/quarto CLI
+    result <- tryCatch({
+        system2("quarto", c("render", changed), stdout = TRUE, stderr = TRUE)
     }, error = function(e) {
         stop("Quarto render failed: ", conditionMessage(e), call. = FALSE)
     })
