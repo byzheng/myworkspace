@@ -178,23 +178,24 @@ render_modified_quarto <- function(
 
 parse_quarto_render_patterns <- function(quarto_path) {
     config <- yaml::read_yaml(quarto_path)
-    if (is.null(config) || is.null(config$render)) {
+    render <- NULL
+    if (!is.null(config$project) && !is.null(config$project$render)) {
+        render <- config$project$render
+    } else if (!is.null(config$render)) {
+        render <- config$render
+    }
+    if (is.null(render)) {
         return(character(0))
     }
-
-    render <- config$render
-
     if (is.character(render)) {
         return(render[nzchar(render)])
     }
-
     if (is.list(render)) {
         values <- unlist(render, recursive = TRUE, use.names = FALSE)
         values <- values[is.character(values)]
         values <- as.character(values)
         return(values[nzchar(values)])
     }
-
     character(0)
 }
 

@@ -11,11 +11,11 @@ test_that("list_quarto_render_files resolves render patterns from _quarto.yml", 
     writeLines(c(
         "project:",
         "  type: website",
-        "render:",
-        "  - \"index.qmd\"",
-        "  - \"pipeline_targets.qmd\"",
-        "  - \"{script,story}/*.qmd\"",
-        "  - \"{script,story}/**/*.{qmd,R,r,Rmd,rmd}\""
+        "  render:",
+        "    - \"index.qmd\"",
+        "    - \"pipeline_targets.qmd\"",
+        "    - \"{script,story}/*.qmd\"",
+        "    - \"{script,story}/**/*.{qmd,R,r,Rmd,rmd}\""
     ), file.path(root, "_quarto.yml"))
 
     files_to_create <- c(
@@ -50,9 +50,10 @@ test_that("list_quarto_render_hashes returns named hashes and updates on content
 
     dir.create(file.path(root, "script"), recursive = TRUE)
     writeLines(c(
-        "render:",
-        "  - \"index.qmd\"",
-        "  - \"script/*.qmd\""
+        "project:",
+        "  render:",
+        "    - \"index.qmd\"",
+        "    - \"script/*.qmd\""
     ), file.path(root, "_quarto.yml"))
 
     writeLines("initial", file.path(root, "index.qmd"))
@@ -76,9 +77,10 @@ test_that("list_quarto_render_hashes supports target triggering scenarios", {
 
     dir.create(file.path(root, "script"), recursive = TRUE)
     writeLines(c(
-        "render:",
-        "  - \"index.qmd\"",
-        "  - \"script/*.qmd\""
+        "project:",
+        "  render:",
+        "    - \"index.qmd\"",
+        "    - \"script/*.qmd\""
     ), file.path(root, "_quarto.yml"))
 
     writeLines("index", file.path(root, "index.qmd"))
@@ -117,9 +119,10 @@ test_that("render_modified_quarto returns only changed files in dry run", {
 
     dir.create(file.path(root, "script"), recursive = TRUE)
     writeLines(c(
-        "render:",
-        "  - \"index.qmd\"",
-        "  - \"script/*.qmd\""
+        "project:",
+        "  render:",
+        "    - \"index.qmd\"",
+        "    - \"script/*.qmd\""
     ), file.path(root, "_quarto.yml"))
 
     writeLines("initial", file.path(root, "index.qmd"))
