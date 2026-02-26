@@ -49,4 +49,14 @@ test_that("render_modified_quarto works end-to-end", {
     expect_false("script/a.qmd" %in% out5)
     expect_true(file.exists(file.path(root, "_site", "script/b.html")))
     expect_false(file.exists(file.path(root, "_site", "script/a.html")))
+
+    # Only a single file
+    unlink(file.path(root, "script", "b.qmd"))
+    writeLines("# Index2", file.path(root, "index.qmd"))
+    out6 <- render_modified_quarto(root_dir = root, dry_run = FALSE)
+    expect_false("script/a.qmd" %in% out6)
+    expect_true(file.exists(file.path(root, "_site", "index.html")))
+    expect_false(file.exists(file.path(root, "_site", "script/b.html")))
+    expect_false(file.exists(file.path(root, "_site", "script/a.html")))
+
 })

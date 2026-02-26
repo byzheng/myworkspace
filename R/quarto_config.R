@@ -202,7 +202,7 @@ render_modified_quarto <- function(
         }
 
         config <- yaml::read_yaml(orig_yml)
-        config$project$render <- changed
+        config$project$render <- as.list(changed)
         yaml::write_yaml(
             config,
             orig_yml,
