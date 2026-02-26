@@ -9,7 +9,8 @@ render_modified_quarto(
   root_dir = here::here(),
   cache_file = ".quarto/render-hashes.json",
   dry_run = FALSE,
-  force = FALSE
+  force = FALSE,
+  ...
 )
 }
 \arguments{
@@ -26,6 +27,8 @@ paths. Defaults to `here::here()`.}
 rendered without invoking Quarto.}
 
 \item{force}{Logical scalar. If `TRUE`, renders all matched files.}
+
+\item{...}{Additional arguments passed to `quarto::quarto_render()`}
 }
 \value{
 Character vector of relative files selected for rendering.

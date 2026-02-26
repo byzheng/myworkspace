@@ -94,6 +94,7 @@ list_quarto_render_hashes <- function(quarto_yml = "_quarto.yml", root_dir = her
 #' @param dry_run Logical scalar. If `TRUE`, returns files that would be
 #'   rendered without invoking Quarto.
 #' @param force Logical scalar. If `TRUE`, renders all matched files.
+#' @param ... Additional arguments passed to `quarto::quarto_render()`
 #'
 #' @return Character vector of relative files selected for rendering.
 #' @export
@@ -107,7 +108,8 @@ render_modified_quarto <- function(
     root_dir = here::here(),
     cache_file = ".quarto/render-hashes.json",
     dry_run = FALSE,
-    force = FALSE
+    force = FALSE,
+    ...
 ) {
     stopifnot(is.logical(dry_run), length(dry_run) == 1)
     stopifnot(is.logical(force), length(force) == 1)
@@ -181,16 +183,8 @@ render_modified_quarto <- function(
         return(invisible(changed))
     }
     if (force) {
-        quarto::quarto_render()
+        quarto::quarto_render(...)
     } else {
-        orig_yml <- file.path(root_dir, quarto_yml)
-        backup_yml <- paste0(orig_yml, ".bak-", as.integer(Sys.time()), "-", sample.int(1e6, 1))
-        file.copy(orig_yml, backup_yml, overwrite = TRUE)
-        on.exit({
-            file.copy(backup_yml, orig_yml, overwrite = TRUE)
-            unlink(backup_yml)
-        }, add = TRUE)
-
         # Ensure index.qmd is last if present
         idx <- which(changed == "index.qmd")
         if (length(idx) > 0) {
@@ -201,18 +195,13 @@ render_modified_quarto <- function(
             }
         }
 
-        config <- yaml::read_yaml(orig_yml)
-        config$project$render <- as.list(changed)
-        yaml::write_yaml(
-            config,
-            orig_yml,
-            handlers = list(logical = yaml::verbatim_logical)
-        )
-        tryCatch({
-            quarto::quarto_render(quarto_args = c("--no-clean"))
-        }, error = function(e) {
-            stop("Quarto render failed: ", conditionMessage(e), call. = FALSE)
-        })
+        for (file in changed) {
+            tryCatch({
+                quarto::quarto_render(input = file, ...)
+            }, error = function(e) {
+                stop("Quarto render failed for ", file, ": ", conditionMessage(e), call. = FALSE)
+            })
+        }
     }
     dir.create(dirname(cache_path), recursive = TRUE, showWarnings = FALSE)
     jsonlite::write_json(as.list(hashes), cache_path, auto_unbox = TRUE, pretty = TRUE)
