@@ -36,10 +36,11 @@ test_that("render_modified_quarto works end-to-end", {
     expect_true(file.exists(file.path(root, "_site", "script/a.html")))
     expect_equal(out3[1], "script/a.qmd")
 
-    # Add new file
+    # Add new file and only render new file
     writeLines("# B", file.path(root, "script", "b.qmd"))
     out4 <- render_modified_quarto(root_dir = root, dry_run = FALSE)
     expect_true(file.exists(file.path(root, "_site", "script/b.html")))
+    expect_true(file.exists(file.path(root, "_site", "script/a.html")))
     expect_equal(out4[1], "script/b.qmd")
 
     # Delete a file
@@ -47,4 +48,5 @@ test_that("render_modified_quarto works end-to-end", {
     out5 <- render_modified_quarto(root_dir = root, dry_run = FALSE)
     expect_false("script/a.qmd" %in% out5)
     expect_true(file.exists(file.path(root, "_site", "script/b.html")))
+    expect_false(file.exists(file.path(root, "_site", "script/a.html")))
 })

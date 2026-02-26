@@ -136,12 +136,40 @@ render_modified_quarto <- function(
         }
     }
 
+    # Determine changed files
+    # Also include files whose output HTML does not exist
+    html_paths <- file.path(root_dir, "_site", tools::file_path_sans_ext(files))
+    html_paths <- paste0(html_paths, ".html") |> 
+        make_relative(root_dir)
     changed <- if (force) {
         files
     } else {
         old_vals <- old_hashes[files]
-        files[is.na(old_vals) | old_vals != hashes[files]]
+        changed <- files[is.na(old_vals) | old_vals != hashes[files]]    
+        missing_html <- files[!file.exists(html_paths)]
+        changed <- unique(c(changed, missing_html))
+        changed
     }
+
+    # Clean up HTML files for deleted source files
+    existing_html_files <- list.files(file.path(root_dir, "_site"), 
+        pattern = "\\.html$", 
+        recursive = TRUE, 
+        full.names = TRUE)
+    if (length(existing_html_files) > 0) {
+        existing_html_files <- make_relative(existing_html_files, root_dir)
+        deleted_files <- existing_html_files[!(existing_html_files %in% html_paths)]
+        if (length(deleted_files) > 0) {
+            message("Removing HTML files for deleted source files: ", length(deleted_files))
+            message("Deleted HTML files: ", paste(deleted_files, collapse = ", "))
+            to_remove <- deleted_files[file.exists(deleted_files)]
+            if (length(to_remove) > 0) {
+                unlink(to_remove)
+            }
+        }
+    }
+    
+    
 
     if (length(changed) == 0) {
         message("No modified render files detected.")
@@ -152,35 +180,36 @@ render_modified_quarto <- function(
         message("Dry run: ", length(changed), " file(s) would be rendered.")
         return(invisible(changed))
     }
-    
-    # Render changed files by rewriting _quarto.yml and using quarto::quarto_render
-    orig_yml <- file.path(root_dir, quarto_yml)
-    backup_yml <- paste0(orig_yml, ".bak-", as.integer(Sys.time()), "-", sample.int(1e6, 1))
-    file.copy(orig_yml, backup_yml, overwrite = TRUE)
-    on.exit({
-        file.copy(backup_yml, orig_yml, overwrite = TRUE)
-        unlink(backup_yml)
-    }, add = TRUE)
-
-    # Ensure index.qmd is last if present
-    idx <- which(changed == "index.qmd")
-    if (length(idx) > 0) {
-        changed <- c(changed[-idx], changed[idx])
+    if (force) {
+        quarto::quarto_render()
     } else {
-        if (file.exists(file.path(root_dir, "index.qmd"))) {
-            changed <- c(changed, "index.qmd")
+        orig_yml <- file.path(root_dir, quarto_yml)
+        backup_yml <- paste0(orig_yml, ".bak-", as.integer(Sys.time()), "-", sample.int(1e6, 1))
+        file.copy(orig_yml, backup_yml, overwrite = TRUE)
+        on.exit({
+            file.copy(backup_yml, orig_yml, overwrite = TRUE)
+            unlink(backup_yml)
+        }, add = TRUE)
+
+        # Ensure index.qmd is last if present
+        idx <- which(changed == "index.qmd")
+        if (length(idx) > 0) {
+            changed <- c(changed[-idx], changed[idx])
+        } else {
+            if (file.exists(file.path(root_dir, "index.qmd"))) {
+                changed <- c(changed, "index.qmd")
+            }
         }
+
+        config <- yaml::read_yaml(orig_yml)
+        config$project$render <- changed
+        yaml::write_yaml(config, orig_yml)
+        tryCatch({
+            quarto::quarto_render(quarto_args = c("--no-clean"))
+        }, error = function(e) {
+            stop("Quarto render failed: ", conditionMessage(e), call. = FALSE)
+        })
     }
-
-    config <- yaml::read_yaml(orig_yml)
-    config$project$render <- changed
-    yaml::write_yaml(config, orig_yml)
-    tryCatch({
-        quarto::quarto_render(profile = orig_yml)
-    }, error = function(e) {
-        stop("Quarto render failed: ", conditionMessage(e), call. = FALSE)
-    })
-
     dir.create(dirname(cache_path), recursive = TRUE, showWarnings = FALSE)
     jsonlite::write_json(as.list(hashes), cache_path, auto_unbox = TRUE, pretty = TRUE)
 
