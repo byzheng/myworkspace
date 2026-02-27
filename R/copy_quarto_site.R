@@ -68,7 +68,7 @@ copy_quarto_site <- function(
 
     fs::dir_copy(source_dir, target_dir)
 
-    if (verbose) message("Done ✔")
+    if (verbose) message("Done")
 
     return(invisible(target_dir))
 }
