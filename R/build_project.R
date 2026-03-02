@@ -12,6 +12,7 @@
 #' }
 #' @export
 build_project <- function() {
+    message("Starting project build process...")
     prj_root <- find_prj()
     withr::with_dir(prj_root, {
         target_file <- file.path("_targets.R")
@@ -20,6 +21,7 @@ build_project <- function() {
         }
         
         # Build targets pipeline with error handling
+        message("Building targets pipeline...")
         error_tar_make <- try({
             targets::tar_make(script = target_file)
         }, silent = TRUE)
@@ -29,6 +31,7 @@ build_project <- function() {
         }
         
         # deploy pipleline
+        message("Rendering pipeline_targets.qmd with Quarto...")
         pip_file <- "pipeline_targets.qmd"
         if (!file.exists(pip_file)) {
             message("No pipeline_targets.qmd file found in the project root directory.")
@@ -43,6 +46,7 @@ build_project <- function() {
             message("Error message: \n", attr(error_quarto_pip, "condition")$message)
         }
         # deploy to workspace folder
+        message("Deploying rendered pipeline_targets.html to workspace folder...")
         error_prj_name <- try({
             prj_name <- get_prj_name()
         }, silent = TRUE)
@@ -61,7 +65,9 @@ build_project <- function() {
             source_file, 
             html_pip_file,
             overwrite = TRUE)
+        message("Pipeline deployed successfully to: ", html_pip_file)
         return(invisible())
 
     }) 
+    message("Project build process completed.")
 }
