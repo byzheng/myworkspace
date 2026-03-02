@@ -14,6 +14,7 @@
 build_project <- function() {
     message("Starting project build process...")
     prj_root <- find_prj()
+    message("Project root found at: ", prj_root)
     withr::with_dir(prj_root, {
         target_file <- file.path("_targets.R")
         if (!file.exists(target_file)) {
@@ -66,8 +67,7 @@ build_project <- function() {
             html_pip_file,
             overwrite = TRUE)
         message("Pipeline deployed successfully to: ", html_pip_file)
-        return(invisible())
-
     }) 
     message("Project build process completed.")
+    return(invisible())
 }
