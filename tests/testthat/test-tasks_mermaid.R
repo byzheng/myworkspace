@@ -1,3 +1,13 @@
+# Test for read_asset_file
+test_that("read_asset_file reads CSS and JS correctly", {
+    css <- read_asset_file("mermaid-zoom.css")
+    js  <- read_asset_file("mermaid-zoom.js")
+    expect_true(grepl("zoom-container", css))
+    expect_true(grepl("enableZoomPan", js))
+    expect_true(nchar(css) > 0)
+    expect_true(nchar(js) > 0)
+})
+
 # Test for knit_targets_mermaid
 
 test_that("knit_targets_mermaid returns knitr asis mermaid output", {
@@ -21,4 +31,6 @@ test_that("knit_targets_mermaid returns knitr asis mermaid output", {
     expect_true(grepl("mermaid", mermaid))
     expect_true(grepl("direction TB", as.character(unlist(mermaid))))
     expect_true(grepl("knit_asis", class(mermaid)))
+        expect_true(grepl("<style>.*zoom-container.*</style>", mermaid))
+        expect_true(grepl("<script>.*enableZoomPan.*</script>", mermaid))
 })

@@ -22,7 +22,8 @@ Imports:
     stats,
     bracer,
     quarto,
-    fs
+    fs,
+    withr
 Depends:
     R (>= 4.1.0)
 RoxygenNote: 7.3.3
