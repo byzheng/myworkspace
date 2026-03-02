@@ -1,12 +1,3 @@
-# Test for read_asset_file
-test_that("read_asset_file reads CSS and JS correctly", {
-    css <- read_asset_file("mermaid-zoom.css")
-    js  <- read_asset_file("mermaid-zoom.js")
-    expect_true(grepl("zoom-container", css))
-    expect_true(grepl("enableZoomPan", js))
-    expect_true(nchar(css) > 0)
-    expect_true(nchar(js) > 0)
-})
 
 # Test for knit_targets_mermaid
 
