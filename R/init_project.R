@@ -34,11 +34,11 @@ init_project <- function(name, root = here::here()) {
     # Add files
 
     # Empty project file
-    writeLines("", ".project")
+    writeLines("", file.path(root, ".project"))
     # Empty .here file to mark project root
-    writeLines("", ".here")
+    writeLines("", file.path(root, ".here"))
     # Empty _targets.R file for targets pipeline
-    writeLines("", "_targets.R")
+    writeLines("", file.path(root, "_targets.R"))
     
     # Template quarto file 
     writeLines(
@@ -53,7 +53,7 @@ init_project <- function(name, root = here::here()) {
             sprintf('  title: "%s"', name),
             ''
         ), 
-        "_quarto.yml"
+        file.path(root, "_quarto.yml")
     )
 
     # build script for targets pipeline
@@ -68,11 +68,11 @@ init_project <- function(name, root = here::here()) {
             ''
         ), 
 
-        "_build.R"
+        file.path(root, "_build.R")
     )
-    writeLines('Rscript "_build.R"', "_build.bat")
+    writeLines('Rscript "_build.R"', file.path(root, "_build.bat"))
     # Project pipeline_targets.qmd file
-    writeLines(read_asset_file("pipeline_targets.qmd"), "pipeline_targets.qmd")
+    writeLines(read_asset_file("pipeline_targets.qmd"), file.path(root, "pipeline_targets.qmd"))
     # Define folder structure
     folders <- c("script", "source", "derived", "output", "story", 
                 file.path("story", "source"),
@@ -139,3 +139,5 @@ init_project <- function(name, root = here::here()) {
     message("\nProject structure initialized successfully!")
     return(invisible())
 }
+
+

@@ -118,3 +118,38 @@ test_that("init_project index.qmd files have correct titles", {
     output_content <- readLines(output_index)
     expect_true(any(grepl("Outputs", output_content)))
 })
+
+
+
+test_that("init_project creates template files", {
+    tmp <- tempfile()
+    dir.create(tmp)
+    on.exit(unlink(tmp, recursive = TRUE))
+
+    name <- "TestProject"
+    init_project(name, root = tmp)
+
+    # Check main template files
+    expect_true(file.exists(file.path(tmp, ".project")))
+    expect_true(file.exists(file.path(tmp, ".here")))
+    expect_true(file.exists(file.path(tmp, "_targets.R")))
+    expect_true(file.exists(file.path(tmp, "_quarto.yml")))
+    expect_true(file.exists(file.path(tmp, "_build.R")))
+    expect_true(file.exists(file.path(tmp, "_build.bat")))
+    expect_true(file.exists(file.path(tmp, "pipeline_targets.qmd")))
+
+    # Check index.qmd files
+    expect_true(file.exists(file.path(tmp, "index.qmd")))
+    expect_true(file.exists(file.path(tmp, "script", "index.qmd")))
+    expect_true(file.exists(file.path(tmp, "story", "source", "index.qmd")))
+    expect_true(file.exists(file.path(tmp, "story", "output", "index.qmd")))
+
+    # Check folders
+    expect_true(dir.exists(file.path(tmp, "script")))
+    expect_true(dir.exists(file.path(tmp, "source")))
+    expect_true(dir.exists(file.path(tmp, "derived")))
+    expect_true(dir.exists(file.path(tmp, "output")))
+    expect_true(dir.exists(file.path(tmp, "story")))
+    expect_true(dir.exists(file.path(tmp, "story", "source")))
+    expect_true(dir.exists(file.path(tmp, "story", "output")))
+})
