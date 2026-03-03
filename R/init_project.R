@@ -34,14 +34,14 @@ init_project <- function(name, root = here::here()) {
     # Add files
 
     # Empty project file
-    writeLines("", file.path(root, ".project"))
+    .create_file("", file.path(root, ".project"))
     # Empty .here file to mark project root
-    writeLines("", file.path(root, ".here"))
+    .create_file("", file.path(root, ".here"))
     # Empty _targets.R file for targets pipeline
-    writeLines("", file.path(root, "_targets.R"))
+    .create_file("", file.path(root, "_targets.R"))
     
     # Template quarto file 
-    writeLines(
+    .create_file(
         c(
             "project:",            
             '  type: website',
@@ -57,7 +57,7 @@ init_project <- function(name, root = here::here()) {
     )
 
     # build script for targets pipeline
-    writeLines(
+    .create_file(
         c(
             "rm(list = ls())",
             'if (requireNamespace("myworkspace", quietly = TRUE)) {',
@@ -70,9 +70,9 @@ init_project <- function(name, root = here::here()) {
 
         file.path(root, "_build.R")
     )
-    writeLines('Rscript "_build.R"', file.path(root, "_build.bat"))
+    .create_file('Rscript "_build.R"', file.path(root, "_build.bat"))
     # Project pipeline_targets.qmd file
-    writeLines(read_asset_file("pipeline_targets.qmd"), file.path(root, "pipeline_targets.qmd"))
+    .create_file(read_asset_file("pipeline_targets.qmd"), file.path(root, "pipeline_targets.qmd"))
     # Define folder structure
     folders <- c("script", "source", "derived", "output", "story", 
                 file.path("story", "source"),
@@ -129,7 +129,7 @@ init_project <- function(name, root = here::here()) {
     for (i in seq(along = folders_index)) {
         index_path <- file.path(root, folders_index[i], "index.qmd")
         if (!file.exists(index_path)) {
-            writeLines(folder_descriptions[[i]], index_path)
+            .create_file(folder_descriptions[[i]], index_path)
             message("Created: ", index_path)
         } else {
             message("File already exists: ", index_path)
@@ -141,3 +141,13 @@ init_project <- function(name, root = here::here()) {
 }
 
 
+
+.create_file <- function(content, path) {
+    if (file.exists(path)) {
+        message("File already exists: ", path)
+    } else {
+        writeLines(content, path)
+        message("Created: ", path)
+    }
+    return(invisible())
+}
