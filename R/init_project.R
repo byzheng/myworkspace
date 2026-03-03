@@ -15,7 +15,7 @@
 #' The root index.qmd includes links to these three main sections.
 #'
 #' @param name Character. Name of the project, used in titles and links.
-#' @param root Character. Path to the project root directory. Default is the current project root (here::here()).
+#' @param root Character. Path to the project root directory. Default is the current directory (".").
 #' @return Invisible NULL. Creates directories and index.qmd files for their side effects.
 #' @export
 #' @examples
@@ -26,7 +26,7 @@
 #' # Initialize in a specific directory
 #' init_project("MyAnalysis", "path/to/project")
 #' }
-init_project <- function(name, root = here::here()) {
+init_project <- function(name, root = ".") {
     stopifnot(is.character(name), length(name) == 1)
     stopifnot(is.character(root), length(root) == 1)
     stopifnot(dir.exists(root))

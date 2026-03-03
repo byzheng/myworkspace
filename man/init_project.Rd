@@ -4,12 +4,12 @@
 \alias{init_project}
 \title{Initialize Project Structure}
 \usage{
-init_project(name, root = here::here())
+init_project(name, root = ".")
 }
 \arguments{
 \item{name}{Character. Name of the project, used in titles and links.}
 
-\item{root}{Character. Path to the project root directory. Default is the current project root (here::here()).}
+\item{root}{Character. Path to the project root directory. Default is the current directory (".").}
 }
 \value{
 Invisible NULL. Creates directories and index.qmd files for their side effects.
