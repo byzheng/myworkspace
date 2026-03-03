@@ -21,15 +21,58 @@
 #' @examples
 #' \dontrun{
 #' # Initialize project structure in current directory
-#' init("MyAnalysis")
+#' init_project("MyAnalysis")
 #' 
 #' # Initialize in a specific directory
-#' init("MyAnalysis", "path/to/project")
+#' init_project("MyAnalysis", "path/to/project")
 #' }
-init <- function(name, root = here::here()) {
+init_project <- function(name, root = here::here()) {
     stopifnot(is.character(name), length(name) == 1)
     stopifnot(is.character(root), length(root) == 1)
     stopifnot(dir.exists(root))
+    
+    # Add files
+
+    # Empty project file
+    writeLines("", ".project")
+    # Empty .here file to mark project root
+    writeLines("", ".here")
+    # Empty _targets.R file for targets pipeline
+    writeLines("", "_targets.R")
+    
+    # Template quarto file 
+    writeLines(
+        c(
+            "project:",            
+            '  type: website',
+            '  render:',
+            '    - "*.qmd"',
+            'metadata-files:',
+            '  - ../../_shared/_default.yml',
+            'website:',
+            sprintf('  title: "%s"', name),
+            ''
+        ), 
+        "_quarto.yml"
+    )
+
+    # build script for targets pipeline
+    writeLines(
+        c(
+            "rm(list = ls())",
+            'if (requireNamespace("myworkspace", quietly = TRUE)) {',
+            '    myworkspace::build_project()',
+            '} else {',
+            '    targets::tar_make(script = "_targets.R")',
+            '}',
+            ''
+        ), 
+
+        "_build.R"
+    )
+    writeLines('Rscript "_build.R"', "_build.bat")
+    # Project pipeline_targets.qmd file
+    writeLines(read_asset_file("pipeline_targets.qmd"), "pipeline_targets.qmd")
     # Define folder structure
     folders <- c("script", "source", "derived", "output", "story", 
                 file.path("story", "source"),

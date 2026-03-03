@@ -1,0 +1,21 @@
+---
+title: "Targets Pipeline Visualization"
+execute: 
+  eval: true
+  echo: false
+  warning: false
+  message: false
+---
+
+## Pipeline Dependency Graph
+
+The pipeline dependency graph is used for {targets} pipeline.
+
+```{r}
+#| label: pipeline-graph
+#| out-width: 100%
+#| results: asis
+
+myworkspace::knit_targets_mermaid()
+```
+

@@ -5,7 +5,7 @@ test_that("init creates all directories", {
     on.exit(unlink(temp_dir, recursive = TRUE, force = TRUE), add = FALSE)
 
     # Run init
-    init("TestProject", root = temp_dir)
+    init_project("TestProject", root = temp_dir)
 
     # Check that all directories exist
     expected_dirs <- c(
@@ -27,7 +27,7 @@ test_that("init creates root index.qmd with correct content", {
     on.exit(unlink(temp_dir, recursive = TRUE, force = TRUE), add = FALSE)
 
     project_name <- "TestProject"
-    init(project_name, root = temp_dir)
+    init_project(project_name, root = temp_dir)
 
     # Check root index.qmd exists
     root_index <- file.path(temp_dir, "index.qmd")
@@ -46,7 +46,7 @@ test_that("init creates index.qmd in specified folders", {
     dir.create(temp_dir)
     on.exit(unlink(temp_dir, recursive = TRUE, force = TRUE), add = FALSE)
 
-    init("TestProject", root = temp_dir)
+    init_project("TestProject", root = temp_dir)
 
     # Check index.qmd files exist in the three main folders
     expected_indexes <- c(
@@ -62,7 +62,7 @@ test_that("init creates index.qmd in specified folders", {
     }
 })
 
-test_that("init doesn't overwrite existing files", {
+test_that("init_project doesn't overwrite existing files", {
     temp_dir <- tempfile("init_test")
     dir.create(temp_dir)
     on.exit(unlink(temp_dir, recursive = TRUE, force = TRUE), add = FALSE)
@@ -72,9 +72,9 @@ test_that("init doesn't overwrite existing files", {
     custom_content <- "Custom content"
     writeLines(custom_content, root_index)
 
-    # Run init
+    # Run init_project and expect a message about existing file
     expect_message(
-        init("TestProject", root = temp_dir),
+        init_project("TestProject", root = temp_dir),
         "already exists"
     )
 
@@ -83,12 +83,12 @@ test_that("init doesn't overwrite existing files", {
     expect_equal(content, custom_content)
 })
 
-test_that("init requires existing root directory", {
-    # Test that init() fails when given a non-existent directory
+test_that("init_project requires existing root directory", {
+    # Test that init_project() fails when given a non-existent directory
     nonexistent_dir <- tempfile("nonexistent")
     
     expect_error(
-        init("TestProject", root = nonexistent_dir),
+        init_project("TestProject", root = nonexistent_dir),
         "dir.exists\\(root\\) is not TRUE"
     )
     
@@ -96,12 +96,12 @@ test_that("init requires existing root directory", {
     expect_false(dir.exists(nonexistent_dir))
 })
 
-test_that("init index.qmd files have correct titles", {
+test_that("init_project index.qmd files have correct titles", {
     temp_dir <- tempfile("init_test")
     dir.create(temp_dir)
     on.exit(unlink(temp_dir, recursive = TRUE, force = TRUE), add = FALSE)
 
-    init("TestProject", root = temp_dir)
+    init_project("TestProject", root = temp_dir)
 
     # Check script index title
     script_index <- file.path(temp_dir, "script", "index.qmd")
