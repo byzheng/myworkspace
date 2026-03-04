@@ -118,7 +118,12 @@ init_project <- function(name, root = ".") {
             "## Outputs",
             "",
             sprintf("[Outputs](story/output/index.qmd) for %s", name),
+            "",
+            "## {targets} Pipeline",
+            "",
+            sprintf("{targets} pipeline for %s project is defined with {targets} package and visualized in [Pipeline Visualization](pipeline_targets.qmd).", name),
             ""
+
         ), root_index)
         message("Created: index.qmd in root")
     } else {
