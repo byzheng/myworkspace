@@ -25,7 +25,7 @@ list(
             if (!requireNamespace("myworkspace", quietly = TRUE)) {
                 return(invisible(NULL))
             }
-            myworkspace::copy_quarto_site()
+            target_dir <- myworkspace::copy_quarto_site()
             target_dir
         },
         format = "file"
