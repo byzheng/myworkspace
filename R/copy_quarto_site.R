@@ -70,5 +70,5 @@ copy_quarto_site <- function(
 
     if (verbose) message("Done")
 
-    return(invisible(target_dir))
+    return(target_dir)
 }
