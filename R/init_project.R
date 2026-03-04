@@ -145,7 +145,6 @@ init_project <- function(name, root = ".") {
     
     # Create the example _targets_quarto.R file in script/ if it doesn't exist
     example_targets_r <- read_asset_file("_targets_quarto.R")
-    example_targets_r <- readLines(example_targets_r)
     example_targets_path <- file.path(root, "script", "90_quarto", "_targets_quarto.R")
     .create_file(example_targets_r, example_targets_path)
 
