@@ -38,7 +38,11 @@ init_project <- function(name, root = ".") {
     # Empty .here file to mark project root
     .create_file("", file.path(root, ".here"))
     # Empty _targets.R file for targets pipeline
-    .create_file("", file.path(root, "_targets.R"))
+    .create_file(
+        c(
+            "myworkspace::get_targets()"
+        ), 
+        file.path(root, "_targets.R"))
     
     # Template quarto file 
     .create_file(
