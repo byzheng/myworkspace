@@ -137,6 +137,7 @@ test_that("init_project creates template files", {
     expect_true(file.exists(file.path(tmp, "_build.R")))
     expect_true(file.exists(file.path(tmp, "_build.bat")))
     expect_true(file.exists(file.path(tmp, "pipeline_targets.qmd")))
+    expect_true(file.exists(file.path(tmp, "script/90_quarto/_targets_quarto.R")))
 
     # Check index.qmd files
     expect_true(file.exists(file.path(tmp, "index.qmd")))

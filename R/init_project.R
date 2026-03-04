@@ -143,7 +143,14 @@ init_project <- function(name, root = ".") {
         }
     }
     
+    # Create the example _targets_quarto.R file in script/ if it doesn't exist
+    example_targets_r <- read_asset_file("_targets_quarto.R")
+    example_targets_r <- readLines(example_targets_r)
+    example_targets_path <- file.path(root, "script", "90_quarto", "_targets_quarto.R")
+    .create_file(example_targets_r, example_targets_path)
+
     message("\nProject structure initialized successfully!")
+    
     return(invisible())
 }
 
@@ -153,6 +160,11 @@ init_project <- function(name, root = ".") {
     if (file.exists(path)) {
         message("File already exists: ", path)
     } else {
+        dir_name <- dirname(path)
+        if (!dir.exists(dir_name)) {
+            dir.create(dir_name, recursive = TRUE)
+            message("Created directory for file: ", dir_name)
+        }
         writeLines(content, path)
         message("Created: ", path)
     }
