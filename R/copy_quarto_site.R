@@ -22,7 +22,7 @@ copy_quarto_site <- function(
 ) {
     # ---- checks ----
     if (missing(target_dir) || is.null(target_dir)) {
-        stop("`target_dir` must be provided.")
+        target_dir <- file.path(find_ws(), "_site", get_prj_name())
     }
 
     if (!dir.exists(source_dir)) {
