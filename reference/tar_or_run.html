@@ -62,7 +62,7 @@ workflows where a target may not always be available.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">tar_or_run</span><span class="op">(</span><span class="va">target</span>, <span class="va">expr</span>, quiet <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">tar_or_run</span><span class="op">(</span><span class="va">target</span>, <span class="va">expr</span>, quiet <span class="op">=</span> <span class="cn">FALSE</span>, store <span class="op">=</span> <span class="fu">here</span><span class="fu">::</span><span class="fu"><a href="https://here.r-lib.org/reference/here.html" class="external-link">here</a></span><span class="op">(</span><span class="st">"_targets"</span><span class="op">)</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -84,8 +84,13 @@ the target read failed and that the fallback is running. If `TRUE`,
 suppress these messages.</p></dd>
 
 
+<dt id="arg-store">store<a class="anchor" aria-label="anchor" href="#arg-store"></a></dt>
+<dd><p>Character path to the targets store. Defaults to
+`here::here("_targets")`.</p></dd>
+
+
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional arguments passed to `targets::tar_read()`, such as `branches` or `store`. This allows for more flexible target reading, such as reading specific branches of a dynamic target or from a non-default store.</p></dd>
+<dd><p>Additional arguments passed to `targets::tar_read()` (except `store`).</p></dd>
 
 </dl></div>
     <div id="value">

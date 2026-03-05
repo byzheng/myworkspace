@@ -60,7 +60,7 @@ Handles overwriting, parent directory creation, and prevents copying into itself
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">copy_quarto_site</span><span class="op">(</span></span>
 <span>  source_dir <span class="op">=</span> <span class="st">"_site"</span>,</span>
-<span>  <span class="va">target_dir</span>,</span>
+<span>  target_dir <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  overwrite <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  create_parent <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
@@ -76,7 +76,7 @@ Handles overwriting, parent directory creation, and prevents copying into itself
 
 
 <dt id="arg-target-dir">target_dir<a class="anchor" aria-label="anchor" href="#arg-target-dir"></a></dt>
-<dd><p>Character scalar. Target directory to copy to. Must be provided.</p></dd>
+<dd><p>Character scalar. Target directory to copy to. Must be provided. If null (default), it will attempt to copy to the workspace folder determined by `find_ws()` and project name from `get_prj_name()`.</p></dd>
 
 
 <dt id="arg-overwrite">overwrite<a class="anchor" aria-label="anchor" href="#arg-overwrite"></a></dt>
@@ -93,7 +93,8 @@ Handles overwriting, parent directory creation, and prevents copying into itself
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Invisibly returns the target directory path.</p>
+    <p>Invisibly returns the target directory path, or `NULL` if default
+  `target_dir` cannot be determined.</p>
     </div>
 
     <div id="ref-examples">
