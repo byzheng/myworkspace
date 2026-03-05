@@ -10,10 +10,9 @@ find_prj(path = ".")
 \item{path}{Starting path to search from. Defaults to current directory.}
 }
 \value{
-The project root directory path (or workspace root if no project found).
+The project root directory path.
 }
 \description{
-Locates the project root by looking for a `.project` file, falling back to
-workspace root if no project is found. Can be overridden by setting the
-`PROJECT_ROOT` environment variable.
+Locates the project root by looking for either a `.project` file or an
+`_project.yml` file.
 }

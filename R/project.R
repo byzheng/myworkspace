@@ -20,22 +20,24 @@ path_prj <- function(...) {
 
 #' Find the project root directory
 #'
-#' Locates the project root by looking for a `.project` file, falling back to
-#' workspace root if no project is found. Can be overridden by setting the
-#' `PROJECT_ROOT` environment variable.
+#' Locates the project root by looking for either a `.project` file or an
+#' `_project.yml` file.
 #'
 #' @param path Starting path to search from. Defaults to current directory.
 #'
-#' @return The project root directory path (or workspace root if no project found).
+#' @return The project root directory path.
 #' @export
 find_prj <- function(path = ".") {
-    tryCatch({
-        root_path <- rprojroot::find_root(rprojroot::has_file(".project"), path = path)
-        return(root_path)
-    }, error = function(e) {
-            stop("No .project file found, using workspace root")
-        }
+    root_path <- tryCatch(
+        rprojroot::find_root(rprojroot::has_file_pattern("^\\.project$|^_project\\.yml$"), path = path),
+        error = function(e) NULL
     )
+
+    if (is.null(root_path)) {
+        stop("No .project or _project.yml file found")
+    }
+
+    return(root_path)
 }
 
 #' Get the current project name

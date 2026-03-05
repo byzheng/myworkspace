@@ -43,6 +43,13 @@ init_project <- function(name, root = ".") {
             "myworkspace::get_targets()"
         ), 
         file.path(root, "_targets.R"))
+    # Empty _project.yml file for project metadata
+    .create_file(
+        c(
+            "functions:",
+            "  - script/file1.R"
+        ), 
+        file.path(root, "_project.yml"))
     
     # Template quarto file 
     .create_file(

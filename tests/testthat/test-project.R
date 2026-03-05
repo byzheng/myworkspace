@@ -63,6 +63,28 @@ test_that("find_prj locates .project from nested directory", {
     )
 })
 
+test_that("find_prj locates _project.yml from nested directory", {
+    old <- getwd()
+    on.exit(setwd(old), add = TRUE)
+
+    root <- file.path(tempdir(), paste0("workspace-test-", as.integer(stats::runif(1, 1, 1e9))))
+    dir.create(root, recursive = TRUE, showWarnings = FALSE)
+
+    project <- file.path(root, "projects", "B")
+    dir.create(project, recursive = TRUE, showWarnings = FALSE)
+    file.create(file.path(project, "_project.yml"))
+
+    nested <- file.path(project, "nested", "dir")
+    dir.create(nested, recursive = TRUE, showWarnings = FALSE)
+
+    setwd(nested)
+
+    expect_equal(
+        find_prj(),
+        normalizePath(project, mustWork = FALSE, winslash = "/")
+    )
+})
+
 test_that("get_prj_name returns NULL at workspace root", {
     old <- getwd()
     on.exit(setwd(old), add = TRUE)
@@ -92,10 +114,6 @@ test_that("get_prj_name returns project path relative to workspace", {
     file.create(file.path(project, ".project"))
 
     setwd(project)
-    old_project_dir <- Sys.getenv("PROJECT_DIR", unset = "")
-    on.exit(Sys.setenv(PROJECT_DIR = old_project_dir), add = TRUE)
-    Sys.setenv(PROJECT_DIR = "")
-
     expect_equal(
         get_prj_name(),
         file.path("projects", "A")

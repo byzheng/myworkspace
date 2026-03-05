@@ -6,18 +6,18 @@
 \usage{
 load_functions(
   folders = c("Rcode/function", "Rcode/00_function", "script/function",
-    "script/00_function", "../000-CommonFiles/script/00_function")
+    "script/00_function")
 )
 }
 \arguments{
 \item{folders}{Character vector. Paths to the directories containing R files relative to project root. 
-Default is c("Rcode/function",  "Rcode/00_function", "script/function", "script/00_function",  "../000-CommonFiles/script/00_function").}
+Default is c("Rcode/function",  "Rcode/00_function", "script/function", "script/00_function").}
 }
 \value{
 Invisible NULL. The function sources the R files for their side effects.
 }
 \description{
-This function sources all R files from a specified directory and its subdirectories into global environment.
+Sources R files listed in `_project.yml` and from fallback folders.
 }
 \examples{
 \dontrun{
