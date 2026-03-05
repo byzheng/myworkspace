@@ -4,7 +4,7 @@
 \alias{tar_or_run}
 \title{Try to Read a targets Target, or Run a Fallback Expression}
 \usage{
-tar_or_run(target, expr, quiet = FALSE, ...)
+tar_or_run(target, expr, quiet = FALSE, store = here::here("_targets"), ...)
 }
 \arguments{
 \item{target}{Unquoted name of the target to read (not a string).}
@@ -16,7 +16,10 @@ lazily only if needed.}
 the target read failed and that the fallback is running. If `TRUE`,
 suppress these messages.}
 
-\item{...}{Additional arguments passed to `targets::tar_read()`, such as `branches` or `store`. This allows for more flexible target reading, such as reading specific branches of a dynamic target or from a non-default store.}
+\item{store}{Character path to the targets store. Defaults to
+`here::here("_targets")`.}
+
+\item{...}{Additional arguments passed to `targets::tar_read()` (except `store`).}
 }
 \value{
 The value of the read target if successful, otherwise the result of

@@ -12,7 +12,9 @@
 #' @param quiet Logical. If `FALSE` (default), print messages explaining why
 #'   the target read failed and that the fallback is running. If `TRUE`,
 #'   suppress these messages.
-#' @param ... Additional arguments passed to `targets::tar_read()`, such as `branches` or `store`. This allows for more flexible target reading, such as reading specific branches of a dynamic target or from a non-default store.
+#' @param store Character path to the targets store. Defaults to
+#'   `here::here("_targets")`. 
+#' @param ... Additional arguments passed to `targets::tar_read()` (except `store`).
 #'
 #' @return The value of the read target if successful, otherwise the result of
 #'   evaluating `expr`.
@@ -25,7 +27,7 @@
 #' # Suppress messages when using interactively
 #' tar_or_run(results, compute_results(), quiet = TRUE)
 #' }
-tar_or_run <- function(target, expr, quiet = FALSE, ...) {
+tar_or_run <- function(target, expr, quiet = FALSE, store = here::here("_targets"), ...) {
     target_quo <- rlang::enquo(target)
     if (rlang::quo_is_missing(target_quo)) {
         stop("`target` must be provided")
@@ -40,6 +42,7 @@ tar_or_run <- function(target, expr, quiet = FALSE, ...) {
     read_call <- rlang::call2(
         targets::tar_read,
         rlang::sym(target_name),
+        store = store,
         !!!dots
     )
 

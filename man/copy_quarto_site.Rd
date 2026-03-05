@@ -7,7 +7,7 @@ Handles overwriting, parent directory creation, and prevents copying into itself
 \usage{
 copy_quarto_site(
   source_dir = "_site",
-  target_dir,
+  target_dir = NULL,
   overwrite = TRUE,
   create_parent = TRUE,
   verbose = TRUE
@@ -16,7 +16,7 @@ copy_quarto_site(
 \arguments{
 \item{source_dir}{Character scalar. Source directory to copy from (default '_site').}
 
-\item{target_dir}{Character scalar. Target directory to copy to. Must be provided.}
+\item{target_dir}{Character scalar. Target directory to copy to. Must be provided. If null (default), it will attempt to copy to the workspace folder determined by `find_ws()` and project name from `get_prj_name()`.}
 
 \item{overwrite}{Logical scalar. If TRUE, overwrites existing target directory (default TRUE).}
 
@@ -25,7 +25,8 @@ copy_quarto_site(
 \item{verbose}{Logical scalar. If TRUE, prints progress messages (default TRUE).}
 }
 \value{
-Invisibly returns the target directory path.
+Invisibly returns the target directory path, or `NULL` if default
+  `target_dir` cannot be determined.
 }
 \description{
 Copies the contents of a Quarto site's output directory (default '_site') to a specified target directory.

@@ -4,7 +4,10 @@
 \alias{build_project}
 \title{Build and deploy project pipeline}
 \usage{
-build_project()
+build_project(pipeline_only = FALSE)
+}
+\arguments{
+\item{pipeline_only}{Logical. If `TRUE`, skip `targets::tar_make()` and only render/deploy `pipeline_targets.qmd`.}
 }
 \value{
 Invisible NULL. Side effects: builds pipeline, renders Quarto, copies HTML to workspace.

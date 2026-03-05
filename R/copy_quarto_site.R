@@ -3,11 +3,12 @@
 #' Handles overwriting, parent directory creation, and prevents copying into itself.
 #'
 #' @param source_dir Character scalar. Source directory to copy from (default '_site').
-#' @param target_dir Character scalar. Target directory to copy to. Must be provided.
+#' @param target_dir Character scalar. Target directory to copy to. Must be provided. If null (default), it will attempt to copy to the workspace folder determined by `find_ws()` and project name from `get_prj_name()`.
 #' @param overwrite Logical scalar. If TRUE, overwrites existing target directory (default TRUE).
 #' @param create_parent Logical scalar. If TRUE, creates parent directory if it does not exist (default TRUE).
 #' @param verbose Logical scalar. If TRUE, prints progress messages (default TRUE).
-#' @return Invisibly returns the target directory path.
+#' @return Invisibly returns the target directory path, or `NULL` if default
+#'   `target_dir` cannot be determined.
 #' @export
 #' @examples
 #' \dontrun{
@@ -15,14 +16,25 @@
 #' }
 copy_quarto_site <- function(
     source_dir = "_site",
-    target_dir,
+    target_dir = NULL,
     overwrite = TRUE,
     create_parent = TRUE,
     verbose = TRUE
 ) {
     # ---- checks ----
-    if (missing(target_dir) || is.null(target_dir)) {
-        target_dir <- file.path(find_ws(), "_site", get_prj_name())
+    if (is.null(target_dir)) {
+        target_dir <- tryCatch({
+            file.path(find_ws(), "_site", get_prj_name())
+        }, error = function(e) {
+            warning("Workspace root cannot be found, cannot determine default target directory. Please provide a valid `target_dir`.")
+            NULL
+        })
+
+        if (is.null(target_dir)) {
+            return(invisible(NULL))
+        }
+    } else {
+        stopifnot(is.character(target_dir), length(target_dir) == 1)
     }
 
     if (!dir.exists(source_dir)) {

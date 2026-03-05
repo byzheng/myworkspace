@@ -83,11 +83,11 @@ test_that("tar_or_run reads target correctly", {
 
     # Test that tar_or_run reads the target correctly
     expect_no_message(
-        result <- tar_or_run(test_target_1)
+        result <- tar_or_run(test_target_1, store = "_targets")
     )
     expect_equal(result, 123)
     expect_no_message(
-        result_df <- tar_or_run(test_target_2)
+        result_df <- tar_or_run(test_target_2, store = "_targets")
     )
     expect_equal(result_df, data.frame(a = 1:3, b = 4:6))
 })
