@@ -31,5 +31,8 @@ Suggests:
     testthat (>= 3.0.0),
     knitr,
     tibble,
-    markdown
+    markdown,
+    dplyr,
+    ggplot2,
+    broom
 VignetteBuilder: knitr
