@@ -152,7 +152,7 @@ check_external_sentinel <- function(sentinel_path,
         if (on_stale == "delete") unlink(sentinel_path)
         msg <- paste0(
             "External process sentinel is incomplete.\n",
-            "Missing tracked inputs: ", paste(missing_inputs, collapse = ", "), "\n",
+            "Missing tracked inputs or no matching input files in the sentinel file: ", paste(missing_inputs, collapse = ", "), "\n",
             if (on_stale == "delete") "Deleted sentinel. " else "",
             "Re-run external process."
         )
