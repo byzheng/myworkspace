@@ -12,6 +12,7 @@
 #'
 #' @export
 knit_targets_mermaid <- function(...) {
+    
     config <- c(
         '%%{init: {',
         '  "flowchart": {',
@@ -21,8 +22,17 @@ knit_targets_mermaid <- function(...) {
         '}}%%',
         ''
     )
-    manifest <- targets::tar_manifest()
-    mermaid_code <- targets::tar_mermaid(...)
+    # Split ... into args for tar_manifest and tar_mermaid
+
+    dots <- list(...)
+    manifest_formals <- names(formals(targets::tar_manifest))
+    manifest_args <- dots[names(dots) %in% manifest_formals]
+    mermaid_formals <- names(formals(targets::tar_mermaid))
+    mermaid_args <- dots[names(dots) %in% mermaid_formals]
+    
+    manifest <- do.call(targets::tar_manifest, manifest_args)
+    mermaid_code <- do.call(targets::tar_mermaid, mermaid_args)
+
     pos <- grepl("direction LR", mermaid_code)
     mermaid_code[pos] <- gsub("direction LR", "direction TB", mermaid_code[pos])
     

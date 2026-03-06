@@ -1,4 +1,3 @@
-
 # Test for knit_targets_mermaid
 
 test_that("knit_targets_mermaid returns knitr asis mermaid output", {
@@ -83,4 +82,27 @@ test_that("knit_targets_mermaid handles missing descriptions", {
     expect_true(grepl("<script>.*enableZoomPan.*</script>", mermaid))
     expect_true(grepl("this is y", mermaid))
     expect_false(grepl("this is x", mermaid))
+})
+
+
+test_that("knit_targets_mermaid passes ... to both functions", {
+    skip_if_not_installed("targets")
+    skip_if_not_installed("knitr")
+    tmp <- tempfile("targets_test_")
+    dir.create(tmp)
+    writeLines(c(
+        "library(targets)",
+        "list(",
+        "  tar_target(x, 1 + 1, description='desc x'),",
+        "  tar_target(y, x * 2, description='desc y')",
+        ")"
+    ), con = file.path(tmp, "_targets.R"))
+    oldwd <- setwd(tmp)
+    on.exit(setwd(oldwd), add = TRUE)
+    Sys.sleep(0.5)
+    # script is accepted by both, targets_only only by tar_mermaid
+    
+    expect_no_error(mermaid <- knit_targets_mermaid(script = file.path(tmp, "_targets.R"), targets_only = TRUE))
+    expect_no_error(mermaid <- knit_targets_mermaid(targets_only = TRUE))
+    expect_no_error(mermaid <- knit_targets_mermaid(script = file.path(tmp, "_targets.R")))
 })
