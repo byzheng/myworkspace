@@ -55,10 +55,18 @@ knit_targets_mermaid <- function(...) {
             node_label <- gsub('\\[|\\]|"', "", node_label)
             
             idx <- which(manifest$name == node_label)
-            if (length(idx) == 1 && !is.na(manifest$description[idx])) {
-                desc <- gsub('"', '\\"', manifest$description[idx])
-                click_rows <- c(click_rows, sprintf('    click %s callback "%s"', node_id, desc))
-            }
+                        if (length(idx) == 1 && !is.na(manifest$description[idx])) {
+                                desc_md <- manifest$description[idx]
+                                # Parse markdown to HTML (remove <p> wrappers for inline)
+                                if (requireNamespace("markdown", quietly = TRUE)) {
+                                    desc_html <- markdown::markdownToHTML(text = desc_md, fragment.only = TRUE)
+                                    desc_html <- gsub('^<p>(.*)</p>\r?\n?$', '\\1', desc_html)
+                                } else {
+                                    desc_html <- desc_md
+                                }
+                                desc_html <- gsub('"', '\\"', desc_html)
+                                click_rows <- c(click_rows, sprintf('    click %s callback "%s"', node_id, desc_html))
+                        }
         }
         mermaid_code <- append(mermaid_code, click_rows, after = graph_end - 1)
     }
