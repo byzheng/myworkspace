@@ -52,4 +52,52 @@ function observeMermaidSVG() {
   poll();
 }
 
-document.addEventListener('DOMContentLoaded', observeMermaidSVG);
+// Tooltip for Mermaid g.node elements with title
+function observeMermaidTooltips() {
+  function tryEnableTooltips() {
+    const mermaidSvgs = document.querySelectorAll('svg.mermaid-js');
+    mermaidSvgs.forEach(svg => {
+      const nodes = svg.querySelectorAll('g.node[title]');
+      nodes.forEach(node => {
+        if (node._tooltipEnabled) return; // Prevent double binding
+        node._tooltipEnabled = true;
+        node.addEventListener('mouseenter', function(e) {
+          let tooltip = document.createElement('div');
+          tooltip.className = 'mermaid-tooltip';
+          tooltip.textContent = node.getAttribute('title');
+          document.body.appendChild(tooltip);
+          // Position at right corner of node
+          const rect = node.getBoundingClientRect();
+          tooltip.style.left = (rect.right + 8) + 'px';
+          tooltip.style.top = (rect.top) + 'px';
+          tooltip.style.position = 'fixed';
+          tooltip.style.zIndex = 9999;
+          tooltip.style.pointerEvents = 'none';
+          node._tooltipDiv = tooltip;
+        });
+        node.addEventListener('mouseleave', function() {
+          if (node._tooltipDiv) {
+            node._tooltipDiv.remove();
+            node._tooltipDiv = null;
+          }
+        });
+      });
+    });
+    return mermaidSvgs.length > 0;
+  }
+  let attempts = 0;
+  const maxAttempts = 30;
+  function poll() {
+    if (tryEnableTooltips() || attempts >= maxAttempts) return;
+    attempts++;
+    setTimeout(poll, 200);
+  }
+  poll();
+}
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  observeMermaidSVG();
+  observeMermaidTooltips();
+});
