@@ -74,12 +74,17 @@
 
 
 <dl><dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Arguments passed to `targets::tar_mermaid()`.</p></dd>
+<dd><p>Arguments passed to `targets::tar_mermaid()` and `targets::tar_manifest()`. Shared arguments (e.g., `script`) are passed to both; unique arguments (e.g., `targets_only`) are passed only to the appropriate function.</p></dd>
 
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A character string formatted for knitr asis output containing the mermaid diagram.</p>
+    <p>A character string formatted for knitr asis output containing the mermaid diagram with interactive tooltips.</p>
+    </div>
+    <div id="details">
+    <h2>Details</h2>
+    <p>The diagram includes a config block (see the top of the output) that sets node and rank spacing for improved layout. The function also injects custom CSS and JS for zooming, panning, and interactive tooltips.</p>
+<p>If a target in the pipeline has a `description` field in the manifest, it will be shown as a tooltip when hovering over the node. Descriptions are parsed as markdown (if the `markdown` package is installed) and rendered as HTML, so you can use formatting, links, and other markdown features in your tooltips.</p>
     </div>
 
     <div id="ref-examples">
@@ -87,6 +92,8 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># In an R Markdown code chunk:</span></span></span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="fu">knit_targets_mermaid</span><span class="op">(</span>targets_only <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># You can use markdown in target descriptions:</span></span></span>
+<span class="r-in"><span><span class="co"># tar_target(x, 1, description = "**Bold** [link](https://r-project.org)")</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
