@@ -10,7 +10,7 @@ My personal R package for workspace and project management.
 
 To install the latest development version: 
 
-```{r}
+```r
 if (!require("remotes")) {
     install.packages("remotes")
 }
