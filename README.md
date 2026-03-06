@@ -1,7 +1,7 @@
 [![R-CMD-check](https://github.com/byzheng/myworkspace/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/byzheng/myworkspace/actions/workflows/R-CMD-check.yaml)
 
 
-# myproject
+# myworkspace
 
 My personal R package for workspace and project management.
 
