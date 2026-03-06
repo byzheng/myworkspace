@@ -36,8 +36,25 @@ knit_targets_mermaid <- function(...) {
     mermaid_formals <- names(formals(targets::tar_mermaid))
     mermaid_args <- dots[names(dots) %in% mermaid_formals]
     
-    manifest <- do.call(targets::tar_manifest, manifest_args)
-    mermaid_code <- do.call(targets::tar_mermaid, mermaid_args)
+        tmp_env <- new.env()
+    manifest_msg <- capture.output({
+        manifest_val <- do.call(targets::tar_manifest, manifest_args)
+        assign("manifest_val", manifest_val, envir = tmp_env)
+    })
+    manifest <- get("manifest_val", envir = tmp_env)
+    mermaid_msg <- capture.output({
+        mermaid_val <- do.call(targets::tar_mermaid, mermaid_args)
+        assign("mermaid_val", mermaid_val, envir = tmp_env)
+    })
+    mermaid_code <- get("mermaid_val", envir = tmp_env)
+
+    if (length(manifest_msg) > 0) {
+        message("tar_manifest messages:\n", paste(manifest_msg, collapse = "\n"))
+    }
+    if (length(mermaid_msg) > 0) {
+        message("tar_mermaid messages:\n", paste(mermaid_msg, collapse = "\n"))
+    }
+
 
     pos <- grepl("direction LR", mermaid_code)
     mermaid_code[pos] <- gsub("direction LR", "direction TB", mermaid_code[pos])
