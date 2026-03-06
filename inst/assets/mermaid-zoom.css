@@ -27,3 +27,8 @@
     pointer-events: auto;
     z-index: 10000;
 }
+
+.mermaid-tooltip a {
+  color: inherit !important;
+  text-decoration: underline;
+}
