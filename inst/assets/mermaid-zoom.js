@@ -66,17 +66,17 @@ function setupMermaidTooltips() {
         tooltip.innerHTML = node.getAttribute('title');
         container.appendChild(tooltip);
 
-        // Position tooltip top-right of node
+        // Position tooltip top-right of node, add scroll offset for correct placement when scrolled
         const rect = node.getBoundingClientRect();
-        let x = rect.right + 8;
-        let y = rect.top - 8;
         const tooltipRect = tooltip.getBoundingClientRect();
         const vpWidth = window.innerWidth;
         const vpHeight = window.innerHeight;
+        let x = rect.right + 8 + window.scrollX;
+        let y = rect.top + rect.height / 2 - 8 + window.scrollY;
 
-        if (x + tooltipRect.width > vpWidth) x = rect.left - tooltipRect.width - 8;
-        if (y + tooltipRect.height > vpHeight) y = vpHeight - tooltipRect.height - 8;
-        if (y < 0) y = 8;
+        if (x + tooltipRect.width > vpWidth + window.scrollX) x = rect.left - tooltipRect.width - 8 + window.scrollX;
+        if (y + tooltipRect.height > vpHeight + window.scrollY) y = vpHeight + window.scrollY - tooltipRect.height - 8;
+        if (y < window.scrollY) y = window.scrollY + 8;
 
         tooltip.style.left = x + 'px';
         tooltip.style.top = y + 'px';
