@@ -36,16 +36,5 @@ Hash string (character)
 ## Details
 
 For text files (by extension), reads the file as text, replaces all line
-endings with , and hashes the resulting string. For binary files, hashes
-the raw file bytes.
-
-## Examples
-
-``` r
-tmp1 <- tempfile(fileext = ".txt")
-tmp2 <- tempfile(fileext = ".txt")
-writeLines(c("a", "b", "c"), tmp1, sep = "\n")
-writeLines(c("a", "b", "c"), tmp2, sep = "\r\n")
-hash_file_normalized(tmp1) == hash_file_normalized(tmp2) # TRUE
-#> [1] TRUE
-```
+endings with \n, and hashes the resulting string. For binary files,
+hashes the raw file bytes.
