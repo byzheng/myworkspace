@@ -54,9 +54,9 @@ Creates a JSON sentinel file that records: - Completion timestamp
 if (FALSE) { # \dontrun{
 # Using relative paths (recommended)
 create_external_sentinel(
-  sentinel_path = ".external/job_complete.json",
-  input_files = c("data/raw.csv", "params.json"),
-  metadata = list(job_id = "12345", nodes = 4)
+    sentinel_path = ".external/job_complete.json",
+    input_files = c("data/raw.csv", "params.json"),
+    metadata = list(job_id = "12345", nodes = 4)
 )
 } # }
 ```

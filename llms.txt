@@ -39,6 +39,8 @@ remotes::install_github("byzheng/myworkspace")
   : Get the current project name
 - [`get_targets()`](https://myworkspace.bangyou.me/reference/get_targets.md)
   : Load and Combine targets Objects
+- [`hash_file_normalized()`](https://myworkspace.bangyou.me/reference/hash_file_normalized.md)
+  : Cross-Platform File Hashing with EOL Normalization
 - [`init_project()`](https://myworkspace.bangyou.me/reference/init_project.md)
   : Initialize Project Structure
 - [`knit_targets_mermaid()`](https://myworkspace.bangyou.me/reference/knit_targets_mermaid.md)

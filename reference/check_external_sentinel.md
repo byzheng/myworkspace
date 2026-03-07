@@ -63,8 +63,8 @@ are stored for information only.
 if (FALSE) { # \dontrun{
 # Using relative paths (recommended)
 check_external_sentinel(
-  sentinel_path = ".external/job_complete.json",
-  input_files = c("data/raw.csv", "params.json")
+    sentinel_path = ".external/job_complete.json",
+    input_files = c("data/raw.csv", "params.json")
 )
 } # }
 ```
