@@ -36,10 +36,12 @@ are shared across machines in different timezones.
 
 Validates sentinel by checking:
 1. Sentinel file exists
-2. Input files haven't changed since external process ran (compared in UTC)
+2. Input files haven't changed since external process ran (compared by file content hash only)
 3. All expected input files are tracked in sentinel
 
 If validation fails, provides clear error message and optionally deletes stale sentinel.
+
+Note: Only file hashes are used for staleness checks. Modification times are stored for information only.
 }
 \examples{
 \dontrun{

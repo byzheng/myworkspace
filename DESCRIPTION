@@ -37,5 +37,4 @@ Suggests:
     dplyr,
     ggplot2,
     broom,
-    targets,
     tarchetypes

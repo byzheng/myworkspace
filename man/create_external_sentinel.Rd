@@ -32,7 +32,7 @@ Examples of valid calls:
 
 Creates a JSON sentinel file that records:
 - Completion timestamp (UTC)
-- Input files (stored as relative paths) and their modification times (UTC)
+- Input files (stored as relative paths) with their content hashes (SHA-256)
 - Optional custom metadata
 }
 \examples{
