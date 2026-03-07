@@ -15,5 +15,6 @@ cran-comments.md
 ^\.github$
 ^.vscode$
 ^\.external$
-vignettes/*.qmd
+vignettes
 .quarto/
+_quarto.yml

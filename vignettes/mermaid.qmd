@@ -22,6 +22,8 @@ library(myworkspace)
 # Basic pipeline
 knit_targets_mermaid(targets_only = TRUE)
 
+```
+
 Comparing with the default `targets::tar_mermaid()`, the following items are added:
 
 * Change from horizontal (left-to-right) to vertical (top-to-bottom) layout.

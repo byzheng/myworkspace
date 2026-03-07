@@ -23,7 +23,8 @@ Imports:
     bracer,
     quarto,
     fs,
-    withr
+    withr,
+    utils
 Depends:
     R (>= 4.1.0)
 RoxygenNote: 7.3.3
@@ -35,4 +36,3 @@ Suggests:
     dplyr,
     ggplot2,
     broom
-VignetteBuilder: knitr

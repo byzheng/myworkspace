@@ -37,12 +37,12 @@ knit_targets_mermaid <- function(...) {
     mermaid_args <- dots[names(dots) %in% mermaid_formals]
     
         tmp_env <- new.env()
-    manifest_msg <- capture.output({
+    manifest_msg <- utils::capture.output({
         manifest_val <- do.call(targets::tar_manifest, manifest_args)
         assign("manifest_val", manifest_val, envir = tmp_env)
     })
     manifest <- get("manifest_val", envir = tmp_env)
-    mermaid_msg <- capture.output({
+    mermaid_msg <- utils::capture.output({
         mermaid_val <- do.call(targets::tar_mermaid, mermaid_args)
         assign("mermaid_val", mermaid_val, envir = tmp_env)
     })
