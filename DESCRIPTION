@@ -35,4 +35,6 @@ Suggests:
     markdown,
     dplyr,
     ggplot2,
-    broom
+    broom,
+    targets,
+    tarchetypes

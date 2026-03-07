@@ -44,6 +44,8 @@ jobs:
             any::dplyr
             any::ggplot2
             any::broom
+            any::targets
+            any::tarchetypes
             local::.
           needs: website
 
