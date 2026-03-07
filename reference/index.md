@@ -1,0 +1,49 @@
+# Package index
+
+## All functions
+
+- [`build_project()`](https://myworkspace.bangyou.me/reference/build_project.md)
+  : Build and deploy project pipeline
+- [`check_external_sentinel()`](https://myworkspace.bangyou.me/reference/check_external_sentinel.md)
+  : Check External Sentinel Staleness for targets
+- [`copy_quarto_site()`](https://myworkspace.bangyou.me/reference/copy_quarto_site.md)
+  : Copies the contents of a Quarto site's output directory (default
+  '\_site') to a specified target directory. Handles overwriting, parent
+  directory creation, and prevents copying into itself.
+- [`create_external_sentinel()`](https://myworkspace.bangyou.me/reference/create_external_sentinel.md)
+  : Create External Sentinel File with Input Tracking
+- [`find_prj()`](https://myworkspace.bangyou.me/reference/find_prj.md) :
+  Find the project root directory
+- [`find_ws()`](https://myworkspace.bangyou.me/reference/find_ws.md) :
+  Find the workspace root directory
+- [`get_external_sentinel_metadata()`](https://myworkspace.bangyou.me/reference/get_external_sentinel_metadata.md)
+  : Get External Sentinel Metadata
+- [`get_param()`](https://myworkspace.bangyou.me/reference/get_param.md)
+  : Get a Quarto parameter value
+- [`get_prj_name()`](https://myworkspace.bangyou.me/reference/get_prj_name.md)
+  : Get the current project name
+- [`get_targets()`](https://myworkspace.bangyou.me/reference/get_targets.md)
+  : Load and Combine targets Objects
+- [`init_project()`](https://myworkspace.bangyou.me/reference/init_project.md)
+  : Initialize Project Structure
+- [`knit_targets_mermaid()`](https://myworkspace.bangyou.me/reference/knit_targets_mermaid.md)
+  : Render targets pipeline as a vertical mermaid diagram for knitr
+- [`list_quarto_render_files()`](https://myworkspace.bangyou.me/reference/list_quarto_render_files.md)
+  : List files targeted by \`\_quarto.yml\` \`render:\` patterns
+- [`list_quarto_render_hashes()`](https://myworkspace.bangyou.me/reference/list_quarto_render_hashes.md)
+  : List content hashes for files targeted by \`\_quarto.yml\`
+  \`render:\` patterns
+- [`load_functions()`](https://myworkspace.bangyou.me/reference/load_functions.md)
+  : Source R Functions from Directory
+- [`path_prj()`](https://myworkspace.bangyou.me/reference/path_prj.md) :
+  Build a path relative to the project root
+- [`path_ws()`](https://myworkspace.bangyou.me/reference/path_ws.md) :
+  Build a path relative to the workspace root
+- [`read_data()`](https://myworkspace.bangyou.me/reference/read_data.md)
+  : Read data from a file path
+- [`render_modified_quarto()`](https://myworkspace.bangyou.me/reference/render_modified_quarto.md)
+  : Render only modified Quarto files
+- [`source_rprofile()`](https://myworkspace.bangyou.me/reference/source_rprofile.md)
+  : Source the nearest \`.Rprofile\` from a directory tree
+- [`tar_or_run()`](https://myworkspace.bangyou.me/reference/tar_or_run.md)
+  : Try to Read a targets Target, or Run a Fallback Expression
