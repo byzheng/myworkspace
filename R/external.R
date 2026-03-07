@@ -34,12 +34,22 @@
 #' }
 #' @export 
 
+
 create_external_sentinel <- function(sentinel_path, input_files, metadata = list()) {
     stopifnot(is.character(input_files), length(input_files) > 0)
     if (!requireNamespace("digest", quietly = TRUE)) {
         stop("The 'digest' package is required for file hashing. Please install it.")
     }
-
+    # Check for absolute paths
+    if (any(fs::is_absolute_path(input_files))) {
+        stop("All input_files must be relative paths. Absolute paths are not allowed.")
+    }
+    if (any(fs::is_absolute_path(sentinel_path))) {
+        stop("sentinel_path must be relative paths. Absolute paths are not allowed.")
+    }
+    input_files <- normalizePath(input_files, winslash = "/", mustWork = TRUE)
+    input_files <- unique(input_files)
+    input_files <- make_relative(input_files, ".")
     # Get hashes for all input files
     input_info <- lapply(input_files, function(f) {
         if (!file.exists(f)) {
@@ -116,6 +126,16 @@ check_external_sentinel <- function(sentinel_path,
                                on_stale = c("stop", "warn", "delete")) {
     stopifnot(is.character(input_files), length(input_files) > 0)
     stopifnot(is.character(sentinel_path), length(sentinel_path) == 1)
+    # Check for absolute paths
+    if (any(fs::is_absolute_path(input_files))) {
+        stop("All input_files must be relative paths. Absolute paths are not allowed.")
+    }
+    if (any(fs::is_absolute_path(sentinel_path))) {
+        stop("sentinel_path must be relative paths. Absolute paths are not allowed.")
+    }
+    input_files <- normalizePath(input_files, winslash = "/", mustWork = TRUE)
+    input_files <- unique(input_files)
+    input_files <- make_relative(input_files, ".")
     on_missing <- match.arg(on_missing)
     on_stale <- match.arg(on_stale)
     

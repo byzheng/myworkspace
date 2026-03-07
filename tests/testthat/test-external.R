@@ -98,12 +98,11 @@ test_that("create_external_sentinel warns about missing input files", {
     writeLines("", "README.md")
     here::i_am("README.md")
     
-    sentinel_path <- file.path(test_proj, "test_sentinel.json")
-    nonexistent_file <- file.path(test_proj, "does_not_exist.rds")
+    sentinel_path <- "test_sentinel.json"
+    nonexistent_file <- "does_not_exist.rds"
     
-    expect_warning(
-        create_external_sentinel(sentinel_path, nonexistent_file),
-        "Input file not found"
+    expect_error(
+        create_external_sentinel(sentinel_path, nonexistent_file)
     )
 })
 
@@ -125,8 +124,9 @@ test_that("check_external_sentinel validates existing sentinel", {
     writeLines("", "README.md")
     here::i_am("README.md")
     
-    sentinel_path <- file.path(test_proj, "test_sentinel.json")
-    input1 <- tempfile(tmpdir = test_proj, fileext = ".rds")
+    sentinel_path <- "test_sentinel.json"
+    dir.create("data", showWarnings = FALSE)
+    input1 <- "data/input1.rds"
     
     # Create mock input file
     saveRDS(mtcars, input1)
@@ -157,8 +157,9 @@ test_that("check_external_sentinel stops when sentinel missing", {
     writeLines("", "README.md")
     here::i_am("README.md")
     
-    sentinel_path <- file.path(test_proj, "nonexistent_sentinel.json")
-    input1 <- tempfile(tmpdir = test_proj, fileext = ".rds")
+    sentinel_path <- "nonexistent_sentinel.json"
+    dir.create("data", showWarnings = FALSE)
+    input1 <- "data/input1.rds"
     
     saveRDS(mtcars, input1)
     
@@ -186,8 +187,9 @@ test_that("check_external_sentinel warns when sentinel missing and on_missing='w
     writeLines("", "README.md")
     here::i_am("README.md")
     
-    sentinel_path <- file.path(test_proj, "nonexistent_sentinel.json")
-    input1 <- tempfile(tmpdir = test_proj, fileext = ".rds")
+    sentinel_path <- "nonexistent_sentinel.json"
+    dir.create("data", showWarnings = FALSE)
+    input1 <- "data/input1.rds"
     
     saveRDS(mtcars, input1)
     
@@ -216,12 +218,15 @@ test_that("check_external_sentinel detects stale inputs", {
     writeLines("", "README.md")
     here::i_am("README.md")
     
-    sentinel_path <- file.path(test_proj, "test_sentinel.json")
-    input1 <- tempfile(tmpdir = test_proj, fileext = ".rds")
+    sentinel_path <- "test_sentinel.json"
+    dir.create("data", showWarnings = FALSE)
+    input1 <- "data/input1.rds"
     
     # Create input and sentinel
     saveRDS(mtcars, input1)
     create_external_sentinel(sentinel_path, input1)
+    
+    expect_no_error(check_external_sentinel(sentinel_path, input1))
     
     # Wait and modify input file (need >1 sec for staleness detection)
     Sys.sleep(1.5)
@@ -251,8 +256,9 @@ test_that("check_external_sentinel deletes stale sentinel when on_stale='delete'
     writeLines("", "README.md")
     here::i_am("README.md")
     
-    sentinel_path <- file.path(test_proj, "test_sentinel.json")
-    input1 <- tempfile(tmpdir = test_proj, fileext = ".rds")
+    sentinel_path <- "test_sentinel.json"
+    dir.create("data", showWarnings = FALSE)
+    input1 <- "data/input1.rds"
     
     # Create input and sentinel
     saveRDS(mtcars, input1)
@@ -266,10 +272,8 @@ test_that("check_external_sentinel deletes stale sentinel when on_stale='delete'
         check_external_sentinel(sentinel_path, input1, on_stale = "delete"),
         "Input data changed after external process completed"
     )
-    
     # Sentinel should be deleted
     expect_false(file.exists(sentinel_path))
-    
     # Clean up
     unlink(input1)
 })
@@ -292,9 +296,10 @@ test_that("check_external_sentinel detects missing tracked inputs", {
     writeLines("", "README.md")
     here::i_am("README.md")
     
-    sentinel_path <- file.path(test_proj, "test_sentinel.json")
-    input1 <- tempfile(tmpdir = test_proj, fileext = ".rds")
-    input2 <- tempfile(tmpdir = test_proj, fileext = ".csv")
+    sentinel_path <- "test_sentinel.json"
+    dir.create("data", showWarnings = FALSE)
+    input1 <- "data/input1.rds"
+    input2 <- "data/input2.csv"
     
     # Create only input1, not input2
     saveRDS(mtcars, input1)
@@ -327,8 +332,9 @@ test_that("check_external_sentinel handles corrupted sentinel", {
     writeLines("", "README.md")
     here::i_am("README.md")
     
-    sentinel_path <- file.path(test_proj, "test_sentinel.json")
-    input1 <- tempfile(tmpdir = test_proj, fileext = ".rds")
+    sentinel_path <- "test_sentinel.json"
+    dir.create("data", showWarnings = FALSE)
+    input1 <- "data/input1.rds"
     
     # Create corrupted JSON file
     writeLines("not valid json {{{", sentinel_path)
@@ -338,10 +344,8 @@ test_that("check_external_sentinel handles corrupted sentinel", {
         check_external_sentinel(sentinel_path, input1),
         "Sentinel file corrupted"
     )
-    
     # Sentinel should be deleted
     expect_false(file.exists(sentinel_path))
-    
     # Clean up
     unlink(input1)
 })
@@ -363,13 +367,12 @@ test_that("check_external_sentinel validates input_files parameter", {
     writeLines("", "README.md")
     here::i_am("README.md")
     
-    sentinel_path <- file.path(test_proj, "test_sentinel.json")
+    sentinel_path <- "test_sentinel.json"
     
     expect_error(
         check_external_sentinel(sentinel_path, character(0)),
         "length.*> 0"
     )
-    
     expect_error(
         check_external_sentinel(sentinel_path, 123),
         "is.character.*input_files"
@@ -394,8 +397,9 @@ test_that("get_external_sentinel_metadata retrieves metadata", {
     writeLines("", "README.md")
     here::i_am("README.md")
     
-    sentinel_path <- file.path(test_proj, "test_sentinel.json")
-    input1 <- tempfile(tmpdir = test_proj, fileext = ".rds")
+    sentinel_path <- "test_sentinel.json"
+    dir.create("data", showWarnings = FALSE)
+    input1 <- "data/input1.rds"
     
     # Create input and sentinel
     saveRDS(mtcars, input1)
@@ -432,10 +436,76 @@ test_that("get_external_sentinel_metadata stops when file missing", {
     writeLines("", "README.md")
     here::i_am("README.md")
     
-    sentinel_path <- file.path(test_proj, "nonexistent_sentinel.json")
+    sentinel_path <- "nonexistent_sentinel.json"
     
     expect_error(
         get_external_sentinel_metadata(sentinel_path),
         "Sentinel file not found"
     )
+})
+
+
+
+test_that("check_external_sentinel detects stale inputs in multiple targets", {
+    skip_if_not_installed("jsonlite")
+    skip_if_not_installed("here")
+    
+    # Create a test project structure
+    test_proj <- tempfile("external_test_")
+    dir.create(test_proj)
+    
+    old_wd <- getwd()
+    setwd(test_proj)
+    on.exit({
+        setwd(old_wd)
+        unlink(test_proj, recursive = TRUE, force = TRUE)
+    }, add = FALSE)
+    
+    writeLines("", "README.md")
+    here::i_am("README.md")
+    
+    sentinel_path <- "test_sentinel.json"
+    sentinel_path2 <- "test_sentinel2.json"
+    dir.create("data", showWarnings = FALSE)
+    input1 <- "data/input1.rds"
+    input2 <- "data/input2.rds"
+    # Create input and sentinel
+    saveRDS(mtcars, input1)
+    saveRDS(iris, input2)
+    create_external_sentinel(sentinel_path, input1)
+    create_external_sentinel(sentinel_path2, c(sentinel_path, input2))
+    # File created. no change should be detected
+    expect_no_error(check_external_sentinel(sentinel_path, input1))
+    expect_no_error(check_external_sentinel(sentinel_path2, c(sentinel_path, input2)))
+    # Wait and modify input file (need >1 sec for staleness detection)
+    Sys.sleep(1.5)
+    # Save file contents, no changes should be detected
+    saveRDS(mtcars, input1)
+    expect_no_error(check_external_sentinel(sentinel_path, input1))
+    expect_no_error(check_external_sentinel(sentinel_path2, c(sentinel_path, input2)))
+
+    # Recreate sentinel with same input, no change should be detected
+    create_external_sentinel(sentinel_path, input1)
+    expect_no_error(check_external_sentinel(sentinel_path, input1))
+    # failed as the target 1 is updated
+    expect_error(check_external_sentinel(sentinel_path2, c(sentinel_path, input2)))
+
+    # File 1 is changed. Sentinel should detect staleness
+    Sys.sleep(1.5)
+    saveRDS(iris, input1)
+    expect_error(
+        check_external_sentinel(sentinel_path, input1, on_stale = "stop"),
+        "Input data changed after external process completed"
+    )    
+    expect_error(check_external_sentinel(sentinel_path2, c(sentinel_path, input2)))
+    # Recreate sentinel 1 with updated input1, should be valid now
+    create_external_sentinel(sentinel_path, input1)
+    expect_no_error(check_external_sentinel(sentinel_path, input1))
+    expect_error(
+        check_external_sentinel(sentinel_path2, c(sentinel_path, input2), on_stale = "stop"),
+        "Input data changed after external process completed"
+    )        
+    create_external_sentinel(sentinel_path2, c(sentinel_path, input2))
+    expect_no_error(check_external_sentinel(sentinel_path2, c(sentinel_path, input2)))
+    
 })
