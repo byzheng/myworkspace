@@ -20,7 +20,7 @@
 #'
 #' Creates a JSON sentinel file that records:
 #' - Completion timestamp (UTC)
-#' - Input files (stored as relative paths) and their modification times (UTC)
+#' - Input files (stored as relative paths) with their content hashes (SHA-256)
 #' - Optional custom metadata
 #'
 #' @examples
@@ -33,36 +33,44 @@
 #' )
 #' }
 #' @export 
+
 create_external_sentinel <- function(sentinel_path, input_files, metadata = list()) {
     stopifnot(is.character(input_files), length(input_files) > 0)
+    if (!requireNamespace("digest", quietly = TRUE)) {
+        stop("The 'digest' package is required for file hashing. Please install it.")
+    }
 
-    
-    # Get modification times for all input files (convert to UTC for cross-timezone consistency)
-    input_mtimes <- vapply(input_files, function(f) {
+    # Get hashes for all input files
+    input_info <- lapply(input_files, function(f) {
         if (!file.exists(f)) {
             warning("Input file not found: ", f)
-            return(NA_character_)
+            return(list(hash = NA_character_))
         }
-        mtime_utc <- as.POSIXct(file.info(f)$mtime, tz = "UTC")
-        as.character(mtime_utc)
-    }, character(1))
-    
+        hash <- digest::digest(file = f, algo = "sha256")
+        list(hash = hash)
+    })
+    names(input_info) <- input_files
+
     # Build sentinel metadata using relative paths for portability
     sentinel_data <- list(
         completed_at = as.character(as.POSIXct(Sys.time(), tz = "UTC")),
-        input_files = as.list(stats::setNames(input_mtimes, input_files)),
+        input_files = input_info,
         metadata = metadata
     )
-    
+
     # Write as JSON
     dir.create(dirname(sentinel_path), recursive = TRUE, showWarnings = FALSE)
     jsonlite::write_json(sentinel_data, sentinel_path, 
                          pretty = TRUE, auto_unbox = TRUE)
-    
+
+    # Compute and store hash of the sentinel file itself (for downstream dependencies)
+    # sentinel_hash <- digest::digest(file = sentinel_path, algo = "sha256")
+    # Optionally, write this hash to a separate file or return it if needed
+
     message("Created sentinel: ", sentinel_path)
     message("  Completed: ", sentinel_data$completed_at)
     message("  Tracked ", length(input_files), " input file(s)")
-    
+
     invisible(sentinel_path)
 }
 
@@ -86,10 +94,12 @@ create_external_sentinel <- function(sentinel_path, input_files, metadata = list
 #'
 #' Validates sentinel by checking:
 #' 1. Sentinel file exists
-#' 2. Input files haven't changed since external process ran (compared in UTC)
+#' 2. Input files haven't changed since external process ran (compared by file content hash only)
 #' 3. All expected input files are tracked in sentinel
 #'
 #' If validation fails, provides clear error message and optionally deletes stale sentinel.
+#' 
+#' Note: Only file hashes are used for staleness checks. Modification times are stored for information only.
 #'
 #' @examples
 #' \dontrun{
@@ -145,7 +155,7 @@ check_external_sentinel <- function(sentinel_path,
     }
     
     stored_files <- names(sentinel_data$input_files)
-    
+
     # Check for missing inputs
     missing_inputs <- setdiff(input_files, stored_files)
     if (length(missing_inputs) > 0) {
@@ -162,35 +172,36 @@ check_external_sentinel <- function(sentinel_path,
             warning(msg)
         }
     }
-    
-    # Check for stale inputs (files modified after external process ran, comparing in UTC)
+
+    # Check for stale inputs (by hash only)
+    if (!requireNamespace("digest", quietly = TRUE)) {
+        stop("The 'digest' package is required for file hashing. Please install it.")
+    }
     stale_inputs <- character(0)
     for (i in seq_along(input_files)) {
         input_file <- input_files[i]
         input_name <- input_files[i]
-        
+
         if (!file.exists(input_file)) {
             stop("Input file not found: ", input_name, call. = FALSE)
         }
-        
-        current_mtime <- as.POSIXct(file.info(input_file)$mtime, tz = "UTC")
-        stored_mtime <- as.POSIXct(sentinel_data$input_files[[input_name]], tz = "UTC")
-        
-        if (is.na(stored_mtime)) {
-            stale_inputs <- c(stale_inputs, 
-                            paste0(input_name, " (not tracked)"))
-        } else if (difftime(current_mtime, stored_mtime, units = "secs") > 1) {
-            # Use 1-second tolerance to handle floating-point precision and filesystem timestamp resolution
-            stale_inputs <- c(stale_inputs, 
-                            paste0(input_name, " (", current_mtime, " > ", stored_mtime, ")"))
+
+        current_hash <- digest::digest(file = input_file, algo = "sha256")
+        stored_info <- sentinel_data$input_files[[input_name]]
+        stored_hash <- stored_info$hash
+
+        if (is.na(stored_hash)) {
+            stale_inputs <- c(stale_inputs, paste0(input_name, " (not tracked)"))
+        } else if (!identical(current_hash, stored_hash)) {
+            stale_inputs <- c(stale_inputs, paste0(input_name, " (hash mismatch)"))
         }
     }
-    
+
     if (length(stale_inputs) > 0) {
         if (on_stale == "delete") unlink(sentinel_path)
         msg <- paste0(
             "Input data changed after external process completed.\n",
-            "Stale inputs:\n  ",
+            "Stale inputs (by hash):\n  ",
             paste(stale_inputs, collapse = "\n  "), "\n",
             if (on_stale == "delete") "Deleted sentinel. " else "",
             "Re-run external process."
@@ -201,7 +212,7 @@ check_external_sentinel <- function(sentinel_path,
             warning(msg)
         }
     }
-    
+
     # All checks passed
     sentinel_path
 }

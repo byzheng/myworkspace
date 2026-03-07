@@ -17,6 +17,7 @@ Imports:
     targets,
     rlang,
     jsonlite,
+    digest,
     rprojroot,
     yaml,
     stats,

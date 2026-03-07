@@ -42,6 +42,11 @@ test_that("create_external_sentinel creates valid sentinel file", {
     expect_equal(sentinel_data$metadata$nodes, 4)
     # Verify relative paths are stored, not absolute
     expect_true("data/input1.rds" %in% names(sentinel_data$input_files))
+    # Ensure only 'hash' field is present for each input file
+    for (info in sentinel_data$input_files) {
+        expect_equal(names(info), "hash")
+        expect_type(info$hash, "character")
+    }
 })
 
 test_that("create_external_sentinel validates input_files", {
