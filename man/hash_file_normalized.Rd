@@ -25,12 +25,5 @@ Hash string (character)
 Computes a hash of a file, normalizing end-of-line characters for text files to ensure consistent hashes across Windows, Linux, and macOS.
 }
 \details{
-For text files (by extension), reads the file as text, replaces all line endings with \n, and hashes the resulting string. For binary files, hashes the raw file bytes.
-}
-\examples{
-tmp1 <- tempfile(fileext = ".txt")
-tmp2 <- tempfile(fileext = ".txt")
-writeLines(c("a", "b", "c"), tmp1, sep = "\n")
-writeLines(c("a", "b", "c"), tmp2, sep = "\r\n")
-hash_file_normalized(tmp1) == hash_file_normalized(tmp2) # TRUE
+For text files (by extension), reads the file as text, replaces all line endings with \\n, and hashes the resulting string. For binary files, hashes the raw file bytes.
 }
