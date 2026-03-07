@@ -81,7 +81,7 @@ machines in different timezones (e.g., Sydney to Brisbane, or across internation
 - Mixed: `create_external_sentinel("./external/job.json", "/full/path/data/raw.csv")`</p>
 <p>Creates a JSON sentinel file that records:
 - Completion timestamp (UTC)
-- Input files (stored as relative paths) and their modification times (UTC)
+- Input files (stored as relative paths) with their content hashes (SHA-256)
 - Optional custom metadata</p>
     </div>
 

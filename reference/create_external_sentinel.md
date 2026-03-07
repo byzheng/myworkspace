@@ -45,8 +45,8 @@ c("/full/path/data/raw.csv"))\` - Mixed:
 "/full/path/data/raw.csv")\`
 
 Creates a JSON sentinel file that records: - Completion timestamp
-(UTC) - Input files (stored as relative paths) and their modification
-times (UTC) - Optional custom metadata
+(UTC) - Input files (stored as relative paths) with their content hashes
+(SHA-256) - Optional custom metadata
 
 ## Examples
 
