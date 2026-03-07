@@ -18,11 +18,11 @@ Create External Sentinel File with Input Tracking
 }
 \details{
 Tracks external dependencies (HPC jobs, shell scripts, database exports, etc.) using sentinel files.
-All paths are resolved relative to the project root using `here::here()`. Absolute paths 
-are automatically converted to relative paths for storage, ensuring sentinels work consistently 
+All paths are resolved relative to the project root using `here::here()`. Absolute paths
+are automatically converted to relative paths for storage, ensuring sentinels work consistently
 across platforms (Windows/Linux/Mac) and different working directories.
 
-All timestamps are stored in UTC to ensure consistency when sentinels are shared across 
+All timestamps are stored in UTC to ensure consistency when sentinels are shared across
 machines in different timezones (e.g., Sydney to Brisbane, or across international systems).
 
 Examples of valid calls:
@@ -39,9 +39,9 @@ Creates a JSON sentinel file that records:
 \dontrun{
 # Using relative paths (recommended)
 create_external_sentinel(
-  sentinel_path = ".external/job_complete.json",
-  input_files = c("data/raw.csv", "params.json"),
-  metadata = list(job_id = "12345", nodes = 4)
+    sentinel_path = ".external/job_complete.json",
+    input_files = c("data/raw.csv", "params.json"),
+    metadata = list(job_id = "12345", nodes = 4)
 )
 }
 }

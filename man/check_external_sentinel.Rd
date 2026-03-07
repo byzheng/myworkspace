@@ -27,11 +27,11 @@ Relative path to sentinel (invisibly) if valid, otherwise stops with informative
 Check External Sentinel Staleness for targets
 }
 \details{
-All paths are resolved relative to the project root using `here::here()`. Absolute paths 
+All paths are resolved relative to the project root using `here::here()`. Absolute paths
 are automatically converted to relative paths for comparison with stored paths, ensuring
 consistency across platforms and working directories.
 
-All timestamps are compared in UTC, ensuring correct staleness detection even when sentinels 
+All timestamps are compared in UTC, ensuring correct staleness detection even when sentinels
 are shared across machines in different timezones.
 
 Validates sentinel by checking:
@@ -47,8 +47,8 @@ Note: Only file hashes are used for staleness checks. Modification times are sto
 \dontrun{
 # Using relative paths (recommended)
 check_external_sentinel(
-  sentinel_path = ".external/job_complete.json",
-  input_files = c("data/raw.csv", "params.json")
+    sentinel_path = ".external/job_complete.json",
+    input_files = c("data/raw.csv", "params.json")
 )
 }
 }

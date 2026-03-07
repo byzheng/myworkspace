@@ -16,7 +16,7 @@ List with completion time, input files (as relative paths), and custom metadata
 Get External Sentinel Metadata
 }
 \details{
-The sentinel path is resolved relative to the project root using `here::here()`. 
+The sentinel path is resolved relative to the project root using `here::here()`.
 Absolute paths are automatically converted to relative paths.
 }
 \examples{
