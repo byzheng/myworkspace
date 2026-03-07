@@ -9,21 +9,26 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-# Introduction
+## Introduction
 
 The `knit_targets_mermaid()` function provides a powerful way to visualize your [`targets`](https://docs.ropensci.org/targets/) pipeline as an interactive [Mermaid](https://mermaid-js.github.io/mermaid/#/) diagram. This vignette demonstrates how to use it in R Markdown or Quarto, including zooming, panning, and rich tooltips with markdown support.
 
-# Basic Usage
+## Basic Usage
+
+Create a chunk in your R Markdown or Quarto document and call `knit_targets_mermaid()` with chunk options `results = "asis"` to render the diagram directly in the document:
 
 ```{r, eval=FALSE}
-library(yourpackagename)
+library(myworkspace)
 # Basic pipeline
 knit_targets_mermaid(targets_only = TRUE)
-```
 
-This will render a vertical (top-to-bottom) Mermaid diagram of your pipeline, with zoom and pan enabled.
+Comparing with the default `targets::tar_mermaid()`, the following items are added:
 
-# Customizing the Diagram
+* Change from horizontal (left-to-right) to vertical (top-to-bottom) layout.
+* Add config to reduce the space between nodes and edges.
+* Add tooltips that support markdown formatting.
+
+## Customizing the Diagram
 
 You can pass arguments to both `targets::tar_mermaid()` and `targets::tar_manifest()` via `...`. For example, to use a custom pipeline script:
 
@@ -31,7 +36,7 @@ You can pass arguments to both `targets::tar_mermaid()` and `targets::tar_manife
 knit_targets_mermaid(script = "my_targets.R", targets_only = TRUE)
 ```
 
-# Tooltips with Markdown
+## Tooltips with Markdown
 
 If you add a `description` to your targets, it will appear as a tooltip when you hover over the node. Descriptions are parsed as markdown (if the `markdown` package is installed) and rendered as HTML, so you can use formatting, links, and more:
 
@@ -43,25 +48,14 @@ list(
 )
 ```
 
-# Example Output
+## Example Output
 
 Below is an example of a rendered diagram with tooltips:
 
-```{r, eval=FALSE}
-knit_targets_mermaid()
+```{r, eval=TRUE, out.width='100%', results='asis'}
+script_file <- system.file("examples", "_targets.R", package = "myworkspace")
+myworkspace::knit_targets_mermaid(script = script_file, targets_only = TRUE)
 ```
 
 Hover over the nodes to see the markdown-formatted tooltips. You can zoom and pan the diagram with your mouse.
 
-# Styling and Customization
-
-The function injects custom CSS and JS for zooming, panning, and tooltips. You can further customize the appearance by editing `inst/assets/mermaid-zoom.css` and `inst/assets/mermaid-zoom.js` in your package.
-
-# Troubleshooting
-
-- If tooltips do not render as HTML, ensure the `markdown` package is installed.
-- If you use Quarto, ensure external JS/CSS is allowed in your document settings.
-
-# Conclusion
-
-`knit_targets_mermaid()` makes it easy to create beautiful, interactive, and informative pipeline diagrams for your R projects. Use markdown in your target descriptions for rich tooltips, and enjoy seamless navigation with zoom and pan.

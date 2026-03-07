@@ -1,5 +1,6 @@
 url: https://myworkspace.bangyou.me/
 template:
+  bootstrap: 5
   includes:
     in_header: |
       <!-- Google tag (gtag.js) -->
