@@ -280,7 +280,7 @@ hash_file_normalized <- function(
     file, 
     algo = "sha256", 
     text_extensions = c(".txt", ".csv", ".tsv", ".md", ".json", ".r", 
-        ".R", ".yaml", ".yml", ".qmd", ".Rmd", ".rmd")
+        ".R", ".yaml", ".yml", ".qmd", ".Rmd", ".rmd", ".apsimx")
 ) {
     ext <- tolower(tools::file_ext(file))
     # If file extension suggests text, normalize line endings
