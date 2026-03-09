@@ -10,7 +10,7 @@ hash_file_normalized(
   file,
   algo = "sha256",
   text_extensions = c(".txt", ".csv", ".tsv", ".md", ".json", ".r", ".R", ".yaml",
-    ".yml", ".qmd", ".Rmd", ".rmd")
+    ".yml", ".qmd", ".Rmd", ".rmd", ".apsimx")
 )
 ```
 
