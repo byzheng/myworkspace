@@ -9,6 +9,9 @@
 #'   `root_dir` or absolute.
 #' @param root_dir Character scalar. Project root used to resolve relative
 #'   paths. Defaults to `here::here()`.
+#' @param exclude_targets_qmd Logical scalar. If `TRUE`, excludes `.qmd` files
+#'   discovered in `targets::tar_manifest()` `command` entries when those files
+#'   exist and are part of the resolved render list.
 #'
 #' @return Character vector of relative file paths matched by `render:`
 #'   patterns.
@@ -17,9 +20,14 @@
 #' \dontrun{
 #' list_quarto_render_files()
 #' }
-list_quarto_render_files <- function(quarto_yml = "_quarto.yml", root_dir = here::here()) {
+list_quarto_render_files <- function(
+    quarto_yml = "_quarto.yml",
+    root_dir = here::here(),
+    exclude_targets_qmd = TRUE
+) {
     stopifnot(is.character(quarto_yml), length(quarto_yml) == 1)
     stopifnot(is.character(root_dir), length(root_dir) == 1)
+    stopifnot(is.logical(exclude_targets_qmd), length(exclude_targets_qmd) == 1)
 
     quarto_path <- if (grepl("^/|^[A-Z]:", quarto_yml)) {
         quarto_yml
@@ -44,6 +52,12 @@ list_quarto_render_files <- function(quarto_yml = "_quarto.yml", root_dir = here
     all_files <- make_relative(all_files, root_dir)
     # Exclude files starting with _ or . (Quarto ignores these)
     all_files <- all_files[!grepl("^[_\\.]", basename(all_files))]
+    if (exclude_targets_qmd) {
+        target_qmd <- get_targets_manifest_qmd_files(root_dir = root_dir)
+        if (length(target_qmd) > 0) {
+            all_files <- setdiff(all_files, target_qmd[target_qmd %in% all_files])
+        }
+    }
     sort(unique(all_files))
 }
 
@@ -57,6 +71,9 @@ list_quarto_render_files <- function(quarto_yml = "_quarto.yml", root_dir = here
 #'   `root_dir` or absolute.
 #' @param root_dir Character scalar. Project root used to resolve relative
 #'   paths. Defaults to `here::here()`.
+#' @param exclude_targets_qmd Logical scalar. If `TRUE`, excludes `.qmd` files
+#'   discovered in `targets::tar_manifest()` `command` entries when those files
+#'   exist and are part of the resolved render list.
 #'
 #' @return Named character vector of MD5 hashes. Names are relative file paths.
 #' @export
@@ -64,10 +81,19 @@ list_quarto_render_files <- function(quarto_yml = "_quarto.yml", root_dir = here
 #' \dontrun{
 #' list_quarto_render_hashes()
 #' }
-list_quarto_render_hashes <- function(quarto_yml = "_quarto.yml", root_dir = here::here()) {
+list_quarto_render_hashes <- function(
+    quarto_yml = "_quarto.yml",
+    root_dir = here::here(),
+    exclude_targets_qmd = TRUE
+) {
     stopifnot(is.character(root_dir), length(root_dir) == 1)
+    stopifnot(is.logical(exclude_targets_qmd), length(exclude_targets_qmd) == 1)
 
-    files <- list_quarto_render_files(quarto_yml = quarto_yml, root_dir = root_dir)
+    files <- list_quarto_render_files(
+        quarto_yml = quarto_yml,
+        root_dir = root_dir,
+        exclude_targets_qmd = exclude_targets_qmd
+    )
     if (length(files) == 0) {
         return(stats::setNames(character(0), character(0)))
     }
@@ -77,6 +103,48 @@ list_quarto_render_hashes <- function(quarto_yml = "_quarto.yml", root_dir = her
     hashes <- as.character(tools::md5sum(abs_files))
     names(hashes) <- files
     hashes
+}
+
+
+extract_qmd_paths_from_command <- function(command_text) {
+    if (!is.character(command_text) || length(command_text) != 1 || !nzchar(command_text)) {
+        return(character(0))
+    }
+
+    matches <- regmatches(command_text, gregexpr("(['\"])([^'\"]+\\.qmd)\\1", command_text, perl = TRUE))[[1]]
+    if (length(matches) == 0) {
+        return(character(0))
+    }
+    paths <- gsub("^['\"]|['\"]$", "", matches)
+    paths[nzchar(paths)]
+}
+
+
+get_targets_manifest_qmd_files <- function(root_dir) {
+    manifest <- tryCatch({
+        withr::with_dir(root_dir, targets::tar_manifest(fields = "command"))
+    }, error = function(e) {
+        NULL
+    })
+    if (is.null(manifest) || !"command" %in% names(manifest)) {
+        return(character(0))
+    }
+
+    commands <- as.character(manifest$command)
+    qmd_candidates <- unique(unlist(lapply(commands, extract_qmd_paths_from_command), use.names = FALSE))
+    if (length(qmd_candidates) == 0) {
+        return(character(0))
+    }
+
+    qmd_candidates <- gsub("\\\\", "/", qmd_candidates)
+    is_abs <- grepl("^/|^[A-Z]:", qmd_candidates)
+    abs_paths <- ifelse(is_abs, qmd_candidates, file.path(root_dir, qmd_candidates))
+    abs_paths <- abs_paths[file.exists(abs_paths)]
+    if (length(abs_paths) == 0) {
+        return(character(0))
+    }
+
+    unique(make_relative(abs_paths, root_dir))
 }
 
 

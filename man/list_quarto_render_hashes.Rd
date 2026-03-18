@@ -4,7 +4,11 @@
 \alias{list_quarto_render_hashes}
 \title{List content hashes for files targeted by `_quarto.yml` `render:` patterns}
 \usage{
-list_quarto_render_hashes(quarto_yml = "_quarto.yml", root_dir = here::here())
+list_quarto_render_hashes(
+  quarto_yml = "_quarto.yml",
+  root_dir = here::here(),
+  exclude_targets_qmd = TRUE
+)
 }
 \arguments{
 \item{quarto_yml}{Character scalar. Path to `_quarto.yml`, relative to
@@ -12,6 +16,10 @@ list_quarto_render_hashes(quarto_yml = "_quarto.yml", root_dir = here::here())
 
 \item{root_dir}{Character scalar. Project root used to resolve relative
 paths. Defaults to `here::here()`.}
+
+\item{exclude_targets_qmd}{Logical scalar. If `TRUE`, excludes `.qmd` files
+discovered in `targets::tar_manifest()` `command` entries when those files
+exist and are part of the resolved render list.}
 }
 \value{
 Named character vector of MD5 hashes. Names are relative file paths.

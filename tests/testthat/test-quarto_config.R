@@ -111,3 +111,65 @@ test_that("list_quarto_render_hashes supports target triggering scenarios", {
     expect_false(identical(hashes_4, hashes_5))
     expect_setequal(names(hashes_5), c("index.qmd", "script/b.qmd"))
 })
+
+test_that("list_quarto_render_* can exclude target-generated qmd files", {
+    root <- file.path(tempdir(), paste0("quarto-exclude-targets-", as.integer(Sys.time()), "-", sample.int(1e6, 1)))
+    dir.create(root, recursive = TRUE)
+    on.exit(unlink(root, recursive = TRUE), add = TRUE)
+    
+    oldsetwd <- setwd(root)
+    on.exit(setwd(oldsetwd), add = TRUE)
+    init_project("test-project")
+
+    test_qmd_file <- file.path("story", "source", "test_qmd.qmd")
+    writeLines(c(
+        "---",
+        "title: test qmd",
+        "---",
+        ""
+    ), 
+        test_qmd_file
+    )
+    writeLines(c(
+        "list(",
+        "    targets::tar_target(",
+        "        qmd_file,",
+        "        {",
+        sprintf("            \"%s\"", test_qmd_file),
+        "        },",
+        "        format = \"file\",",
+        "    ),",
+        "    targets::tar_target(",
+        "        render_qmd,",
+        "        {",
+        "            qmd_file",
+        "            quarto::quarto_render(qmd_file, quiet = TRUE)",
+        "        },", 
+        "        format = \"file\",",
+        "    )",
+        ")"
+    ), 
+        file.path(root, "story", "source", "_targets_compile_qmd.R")
+    )
+
+    files_filtered <- list_quarto_render_files(root_dir = root)
+    expect_false(test_qmd_file %in% files_filtered)
+    files_all <- list_quarto_render_files(root_dir = root, exclude_targets_qmd = FALSE)
+    expect_true(test_qmd_file %in% files_all)
+    files_filtered <- list_quarto_render_files(root_dir = root, exclude_targets_qmd = TRUE)
+    expect_false(test_qmd_file %in% files_filtered)
+    
+    hashes_filtered <- list_quarto_render_hashes(root_dir = root)
+    expect_false(test_qmd_file %in% names(hashes_filtered))
+
+    hashes_all <- list_quarto_render_hashes(root_dir = root, exclude_targets_qmd = FALSE)
+    expect_true(test_qmd_file %in% names(hashes_all))
+    
+    hashes_filtered <- list_quarto_render_hashes(root_dir = root, exclude_targets_qmd = TRUE)
+    expect_false(test_qmd_file %in% names(hashes_filtered))
+
+    build_project()
+
+    expect_true(file.exists(file.path("_site", "story", "source", "test_qmd.html")))
+
+})
