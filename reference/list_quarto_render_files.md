@@ -6,7 +6,11 @@ to a concrete file list.
 ## Usage
 
 ``` r
-list_quarto_render_files(quarto_yml = "_quarto.yml", root_dir = here::here())
+list_quarto_render_files(
+  quarto_yml = "_quarto.yml",
+  root_dir = here::here(),
+  exclude_targets_qmd = TRUE
+)
 ```
 
 ## Arguments
@@ -20,6 +24,12 @@ list_quarto_render_files(quarto_yml = "_quarto.yml", root_dir = here::here())
 
   Character scalar. Project root used to resolve relative paths.
   Defaults to \`here::here()\`.
+
+- exclude_targets_qmd:
+
+  Logical scalar. If \`TRUE\`, excludes \`.qmd\` files discovered in
+  \`targets::tar_manifest()\` \`command\` entries when those files exist
+  and are part of the resolved render list.
 
 ## Value
 
