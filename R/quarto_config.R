@@ -222,13 +222,22 @@ render_modified_quarto <- function(
     }
 
     # Clean up HTML files for deleted source files
+    files_all <- list_quarto_render_files(
+        quarto_yml = quarto_yml, 
+        root_dir = root_dir, 
+        exclude_targets_qmd = FALSE
+    )
+    html_paths_all <- file.path(root_dir, "_site", tools::file_path_sans_ext(files_all))
+    html_paths_all <- paste0(html_paths_all, ".html") |> 
+        make_relative(root_dir)
+    
     existing_html_files <- list.files(file.path(root_dir, "_site"), 
         pattern = "\\.html$", 
         recursive = TRUE, 
         full.names = TRUE)
     if (length(existing_html_files) > 0) {
         existing_html_files <- make_relative(existing_html_files, root_dir)
-        deleted_files <- existing_html_files[!(existing_html_files %in% html_paths)]
+        deleted_files <- existing_html_files[!(existing_html_files %in% html_paths_all)]
         if (length(deleted_files) > 0) {
             message("Removing HTML files for deleted source files: ", length(deleted_files))
             message("Deleted HTML files: ", paste(deleted_files, collapse = ", "))
