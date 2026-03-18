@@ -133,17 +133,17 @@ test_that("list_quarto_render_* can exclude target-generated qmd files", {
     writeLines(c(
         "list(",
         "    targets::tar_target(",
-        "        qmd_file,",
+        "        test_qmd_file,",
         "        {",
         sprintf("            \"%s\"", test_qmd_file),
         "        },",
         "        format = \"file\",",
         "    ),",
         "    targets::tar_target(",
-        "        render_qmd,",
+        "        test_render_qmd,",
         "        {",
-        "            qmd_file",
-        "            quarto::quarto_render(qmd_file, quiet = TRUE)",
+        "            test_qmd_file",
+        "            quarto::quarto_render(test_qmd_file, quiet = FALSE)",
         "        },", 
         "        format = \"file\",",
         "    )",
@@ -169,7 +169,6 @@ test_that("list_quarto_render_* can exclude target-generated qmd files", {
     expect_false(test_qmd_file %in% names(hashes_filtered))
 
     build_project()
-
     expect_true(file.exists(file.path("_site", "story", "source", "test_qmd.html")))
 
 })
