@@ -15,6 +15,7 @@ read_prj_config <- function() {
 #' 
 #' @param name The name of the configuration value to retrieve. Can be a nested key using dot notation.
 #' @return The value of the specified configuration key
+#' @export 
 get_prj_config <- function(name) {
     config <- read_prj_config()
     if (is.null(config)) {
