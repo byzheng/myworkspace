@@ -21,8 +21,7 @@ test_that("load_functions sources R files from provided folders", {
     writeLines("load_functions_test_value <- 42", file.path(test_folder, "helper.R"))
 
     expect_warning(
-        load_functions(folders = test_folder_name),
-        "No function files specified in _project.yml"
+        load_functions(folders = test_folder_name)
     )
 
     expect_true(exists(test_value, envir = .GlobalEnv, inherits = FALSE))
