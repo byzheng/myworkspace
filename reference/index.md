@@ -20,6 +20,8 @@
   : Get External Sentinel Metadata
 - [`get_param()`](https://myworkspace.bangyou.me/reference/get_param.md)
   : Get a Quarto parameter value
+- [`get_prj_config()`](https://myworkspace.bangyou.me/reference/get_prj_config.md)
+  : Get a project configuration value
 - [`get_prj_name()`](https://myworkspace.bangyou.me/reference/get_prj_name.md)
   : Get the current project name
 - [`get_targets()`](https://myworkspace.bangyou.me/reference/get_targets.md)
