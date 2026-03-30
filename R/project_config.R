@@ -1,11 +1,15 @@
 
 read_prj_config <- function() {
-    prj_config_path <- path_prj("_project.yml")
-    if (!file.exists(prj_config_path)) {
+    tryCatch({
+        prj_config_path <- path_prj("_project.yml")
+        if (!file.exists(prj_config_path)) {
+            return(NULL)
+        }
+        config <- yaml::read_yaml(prj_config_path)
+        return(config)
+    }, error = function(e) {
         return(NULL)
-    }
-    config <- yaml::read_yaml(prj_config_path)
-    return(config)
+    })
 }
 
 #' Get a project configuration value
