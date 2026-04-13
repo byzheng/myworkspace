@@ -227,3 +227,33 @@ test_that("get_targets handles list of tar_target objects from single file", {
     expect_length(result, 2)
     expect_true(all(vapply(result, inherits, logical(1), what = "tar_target")))
 })
+
+test_that("get_targets includes tarchetypes::tar_files targets", {
+    skip_if_not_installed("targets")
+    skip_if_not_installed("tarchetypes")
+
+    temp_dir <- tempfile()
+    dir.create(temp_dir)
+    on.exit(unlink(temp_dir, recursive = TRUE))
+
+    script_dir <- file.path(temp_dir, "script")
+    dir.create(script_dir, recursive = TRUE)
+
+    writeLines(
+        c(
+            "targets_files <- tarchetypes::tar_files(",
+            "  name = produced_file,",
+            "  command = file.path(tempdir(), 'produced.txt')",
+            ")"
+        ),
+        file.path(script_dir, "_targets_tarchetypes.R")
+    )
+
+    result <- get_targets(path = script_dir)
+    result_names <- vapply(result, function(x) x$name, character(1))
+
+    expect_type(result, "list")
+    expect_length(result, 2)
+    expect_true(all(vapply(result, inherits, logical(1), what = "tar_target")))
+    expect_true(all(c("produced_file", "produced_file_files") %in% result_names))
+})

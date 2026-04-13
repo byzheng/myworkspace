@@ -21,6 +21,8 @@
 #' Alternatively, a file can contain a bare tar_target call (e.g., 
 #' `targets::tar_target(alpha, 1)`) as its final expression, which will be
 #' captured and named after its internal target name.
+#' Objects can also be nested lists of `tar_target` objects (e.g., outputs from
+#' `tarchetypes` helpers), which are flattened before combining.
 #' The function validates this after each sourced file and errors with file
 #' context if any matched object does not meet these criteria. It also errors on
 #' duplicate internal target names. If sourcing a matched file fails, the
@@ -50,6 +52,68 @@ get_targets <- function(
     stopifnot(is.character(pattern), length(pattern) == 1)
 
     target_env <- new.env(parent = baseenv())
+
+    normalize_target_object <- function(obj, obj_name, target_file) {
+        if (inherits(obj, "tar_target")) {
+            return(obj)
+        }
+
+        if (is.list(obj)) {
+            if (length(obj) == 0) {
+                stop(
+                    sprintf(
+                        "Empty list after sourcing %s: %s",
+                        target_file,
+                        obj_name
+                    ),
+                    call. = FALSE
+                )
+            }
+
+            flattened <- list()
+            for (item in obj) {
+                if (inherits(item, "tar_target")) {
+                    flattened <- c(flattened, list(item))
+                } else if (is.list(item)) {
+                    nested <- normalize_target_object(item, obj_name, target_file)
+                    if (inherits(nested, "tar_target")) {
+                        flattened <- c(flattened, list(nested))
+                    } else {
+                        flattened <- c(flattened, nested)
+                    }
+                } else {
+                    stop(
+                        sprintf(
+                            paste0(
+                                "Object %s in %s is a list but not all elements ",
+                                "inherit from 'tar_target'"
+                            ),
+                            obj_name,
+                            target_file
+                        ),
+                        call. = FALSE
+                    )
+                }
+            }
+
+            if (length(flattened) == 1) {
+                return(flattened[[1]])
+            }
+
+            return(flattened)
+        }
+
+        stop(
+            sprintf(
+                paste0(
+                    "Object %s in %s must be a tar_target or a list of tar_targets"
+                ),
+                obj_name,
+                target_file
+            ),
+            call. = FALSE
+        )
+    }
 
     target_files <- sort(
         list.files(
@@ -92,18 +156,14 @@ get_targets <- function(
         file_object_names <- ls(envir = file_env)
         file_target_names <- sort(ls(envir = file_env, pattern = "^targets_"))
 
-        # Check if last expression is a bare tar_target or list of tar_targets
-        # Only treat as bare if there are NO assigned targets_* variables
+        # Check if last expression is a bare tar_target or list of tar_targets.
+        # Only treat as bare if there are NO assigned targets_* variables.
         bare_tar_target <- NULL
         if (length(file_target_names) == 0) {
-            is_bare_single <- inherits(last_value, "tar_target")
-            is_bare_list <- is.list(last_value) && length(last_value) > 0 && 
-                            all(vapply(last_value, inherits, logical(1), what = "tar_target"))
-            
-            if ((is_bare_single || is_bare_list)) {
-                # This is a bare tar_target/list returned from source (not from an assignment)
-                bare_tar_target <- last_value
-            }
+            bare_tar_target <- tryCatch(
+                normalize_target_object(last_value, "<bare>", target_file),
+                error = function(e) NULL
+            )
         }
 
         if (length(file_target_names) == 0 && is.null(bare_tar_target)) {
@@ -135,52 +195,12 @@ get_targets <- function(
             file_target_names <- c(file_target_names, obj_name)
         }
         
-        # Validate: each object must be a tar_target OR a list of tar_targets
         for (obj_name in names(file_target_objects)) {
-            obj <- file_target_objects[[obj_name]]
-            
-            if (inherits(obj, "tar_target")) {
-                # Single tar_target: valid
-                next
-            } else if (is.list(obj)) {
-                # List: check all elements are tar_targets
-                if (length(obj) == 0) {
-                    stop(
-                        sprintf(
-                            "Empty list after sourcing %s: %s",
-                            target_file,
-                            obj_name
-                        ),
-                        call. = FALSE
-                    )
-                }
-                all_tar_targets <- all(vapply(obj, inherits, logical(1), what = "tar_target"))
-                if (!all_tar_targets) {
-                    stop(
-                        sprintf(
-                            paste0(
-                                "Object %s in %s is a list but not all elements ",
-                                "inherit from 'tar_target'"
-                            ),
-                            obj_name,
-                            target_file
-                        ),
-                        call. = FALSE
-                    )
-                }
-            } else {
-                # Neither tar_target nor list: invalid
-                stop(
-                    sprintf(
-                        paste0(
-                            "Object %s in %s must be a tar_target or a list of tar_targets"
-                        ),
-                        obj_name,
-                        target_file
-                    ),
-                    call. = FALSE
-                )
-            }
+            file_target_objects[[obj_name]] <- normalize_target_object(
+                file_target_objects[[obj_name]],
+                obj_name,
+                target_file
+            )
         }
 
         existing_target_objects <- mget(
