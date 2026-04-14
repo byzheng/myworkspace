@@ -35,6 +35,8 @@ All matched `targets_*` objects must be either:
 Alternatively, a file can contain a bare tar_target call (e.g., 
 `targets::tar_target(alpha, 1)`) as its final expression, which will be
 captured and named after its internal target name.
+Objects can also be nested lists of `tar_target` objects (e.g., outputs from
+`tarchetypes` helpers), which are flattened before combining.
 The function validates this after each sourced file and errors with file
 context if any matched object does not meet these criteria. It also errors on
 duplicate internal target names. If sourcing a matched file fails, the

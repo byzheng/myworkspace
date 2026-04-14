@@ -43,6 +43,49 @@ test_that("list_quarto_render_files resolves render patterns from _quarto.yml", 
     ))
 })
 
+test_that("list_quarto_render_files ignores files in hidden or underscored directories", {
+    root <- file.path(tempdir(), paste0("quarto-hidden-dirs-", as.integer(Sys.time()), "-", sample.int(1e6, 1)))
+    dir.create(root, recursive = TRUE)
+    on.exit(unlink(root, recursive = TRUE), add = TRUE)
+
+    dir.create(file.path(root, "visible", "nested"), recursive = TRUE)
+    dir.create(file.path(root, "visible", ".cache"), recursive = TRUE)
+    dir.create(file.path(root, "visible", "_freeze"), recursive = TRUE)
+    dir.create(file.path(root, ".hidden"), recursive = TRUE)
+    dir.create(file.path(root, "_private"), recursive = TRUE)
+
+    writeLines(c(
+        "project:",
+        "  type: website",
+        "  render:",
+        "    - \"visible/*.qmd\"",
+        "    - \"visible/**/*.R\"",
+        "    - \"visible/.cache/*.qmd\"",
+        "    - \"visible/_freeze/*.R\"",
+        "    - \".hidden/*.qmd\"",
+        "    - \"_private/*.R\""
+    ), file.path(root, "_quarto.yml"))
+
+    files_to_create <- c(
+        "visible/page.qmd",
+        "visible/nested/code.R",
+        "visible/.cache/ignored.qmd",
+        "visible/_freeze/ignored.R",
+        ".hidden/ignored.qmd",
+        "_private/ignored.R"
+    )
+    for (f in files_to_create) {
+        writeLines("x", file.path(root, f))
+    }
+
+    result <- list_quarto_render_files(root_dir = root)
+
+    expect_setequal(result, c(
+        "visible/page.qmd",
+        "visible/nested/code.R"
+    ))
+})
+
 test_that("list_quarto_render_hashes returns named hashes and updates on content change", {
     root <- file.path(tempdir(), paste0("quarto-hash-", as.integer(Sys.time()), "-", sample.int(1e6, 1)))
     dir.create(root, recursive = TRUE)

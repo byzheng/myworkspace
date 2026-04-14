@@ -50,8 +50,14 @@ list_quarto_render_files <- function(
         all_files <- c(all_files, files_i)
     }
     all_files <- make_relative(all_files, root_dir)
-    # Exclude files starting with _ or . (Quarto ignores these)
-    all_files <- all_files[!grepl("^[_\\.]", basename(all_files))]
+    # Exclude files and directories starting with _ or . (Quarto ignores these)
+    path_segments <- strsplit(all_files, "/", fixed = TRUE)
+    has_hidden_segment <- vapply(
+        path_segments,
+        function(segments) any(grepl("^[_\\.]", segments)),
+        logical(1)
+    )
+    all_files <- all_files[!has_hidden_segment]
     if (exclude_targets_qmd) {
         target_qmd <- get_targets_manifest_qmd_files(root_dir = root_dir)
         if (length(target_qmd) > 0) {
