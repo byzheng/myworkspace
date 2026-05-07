@@ -18,6 +18,7 @@ with chunk options `results = "asis"` to render the diagram directly in
 the document:
 
 ``` r
+
 library(myworkspace)
 # Basic pipeline
 knit_targets_mermaid(targets_only = TRUE)
@@ -41,6 +42,7 @@ and
 via `...`. For example, to use a custom pipeline script:
 
 ``` r
+
 knit_targets_mermaid(script = "my_targets.R", targets_only = TRUE)
 ```
 
@@ -52,6 +54,7 @@ the `markdown` package is installed) and rendered as HTML, so you can
 use formatting, links, and more:
 
 ``` r
+
 # In your _targets.R
 list(
   tar_target(x, 1 + 1, description = "**Bold** _italic_ [link](https://r-project.org)"),
@@ -64,6 +67,7 @@ list(
 Below is an example of a rendered diagram with tooltips:
 
 ``` r
+
 script_file <- system.file("examples", "_targets.R", package = "myworkspace")
 myworkspace::knit_targets_mermaid(script = script_file, targets_only = TRUE)
 ```

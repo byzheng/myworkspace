@@ -47,6 +47,8 @@
   : Read data from a file path
 - [`render_modified_quarto()`](https://myworkspace.bangyou.me/reference/render_modified_quarto.md)
   : Render only modified Quarto files
+- [`reset_prj_config()`](https://myworkspace.bangyou.me/reference/reset_prj_config.md)
+  : Reset the project configuration cache
 - [`source_rprofile()`](https://myworkspace.bangyou.me/reference/source_rprofile.md)
   : Source the nearest \`.Rprofile\` from a directory tree
 - [`tar_or_run()`](https://myworkspace.bangyou.me/reference/tar_or_run.md)

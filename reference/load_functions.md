@@ -5,19 +5,8 @@ Sources R files listed in \`\_project.yml\` and from fallback folders.
 ## Usage
 
 ``` r
-load_functions(
-  folders = c("Rcode/function", "Rcode/00_function", "script/function",
-    "script/00_function")
-)
+load_functions()
 ```
-
-## Arguments
-
-- folders:
-
-  Character vector. Paths to the directories containing R files relative
-  to project root. Default is c("Rcode/function", "Rcode/00_function",
-  "script/function", "script/00_function").
 
 ## Value
 
