@@ -7,6 +7,7 @@ test_that("project_config", {
     dir.create(root, recursive = TRUE, showWarnings = FALSE)
     setwd(root)
     # failed as No _project.yml file 
+    reset_prj_config()
     expect_error(
         get_prj_config("data_dir")
     )
@@ -18,7 +19,7 @@ test_that("project_config", {
     )
     project_file <- file.path(root, "_project.yml")
     yaml::write_yaml(config, project_file)
-
+    reset_prj_config()
     expect_equal(get_prj_config("data_dir"), "data")
     expect_equal(get_prj_config("output_dir"), "output")
     expect_equal(get_prj_config("start")$year, 2020)
@@ -28,4 +29,5 @@ test_that("project_config", {
     expect_equal(get_prj_config("start.month"), 1)
     expect_equal(get_prj_config("start.day"), 1)
 })
+
 

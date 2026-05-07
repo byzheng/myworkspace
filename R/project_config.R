@@ -1,15 +1,17 @@
+.prj_config_env <- new.env(parent = emptyenv())
 
 read_prj_config <- function() {
-    tryCatch({
-        prj_config_path <- path_prj("_project.yml")
-        if (!file.exists(prj_config_path)) {
-            return(NULL)
-        }
-        config <- yaml::read_yaml(prj_config_path)
-        return(config)
-    }, error = function(e) {
+    prj_config_path <- path_prj("_project.yml")
+    if (!file.exists(prj_config_path)) {
         return(NULL)
-    })
+    }
+    if (exists("config", envir = .prj_config_env)) {
+        return(.prj_config_env$config)
+    }
+    config <- yaml::read_yaml(prj_config_path)
+    .prj_config_env$config <- config
+
+    config
 }
 
 #' Get a project configuration value
@@ -28,4 +30,14 @@ get_prj_config <- function(name) {
     optree_config <- optree::create_options_manager(defaults = config)
     value <- optree_config$get(name)
     return(value)
+}
+
+#' Reset the project configuration cache
+#'
+#' This function clears the cached project configuration, forcing it to be re-read from the `_project.yml` file on the next call to `get_prj_config()`. Useful for testing or when the configuration file has been updated.
+#' @export
+reset_prj_config <- function() {
+    if (exists("config", envir = .prj_config_env)) {
+        rm("config", envir = .prj_config_env)
+    }
 }
