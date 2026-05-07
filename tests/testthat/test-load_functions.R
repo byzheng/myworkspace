@@ -27,7 +27,7 @@ test_that("load_functions sources R files from provided folders", {
 
     writeLines("load_functions_test_value <- 42", file.path(test_folder, "helper.R"))
     reset_prj_config()
-    expect_error(
+    expect_warning(
         load_functions()
     )
     writeLines(sprintf("

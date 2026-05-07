@@ -13,28 +13,29 @@
 #' load_functions()
 #' }
 load_functions <- function() {
-    functions_files <- character(0)
-    tryCatch({
-        config <- read_prj_config()
-        
-        if (!is.null(config) && !is.null(config$functions) && length(config$functions) > 0) {
-            functions_files <- config$functions
+    config <- tryCatch(
+        read_prj_config(),
+        error = function(e) {
+            warning("Failed to read project configuration: ", conditionMessage(e))
+            NULL
         }
-        if (is.null(functions_files) || length(functions_files) == 0) {
-            warning("No function files specified in _project.yml. Using default directories.")
+    )
+    if (is.null(config)) {
+        warning("No project configuration found. Please create a _project.yml file.")
+        return(invisible())
+    }
+    if (is.null(config$functions) || length(config$functions) == 0) {
+        warning("No function files specified in _project.yml. Please add a 'functions' section.")
+        return(invisible())
+    }
+    functions_files <- config$functions
+    for (i in seq_along(functions_files)) {
+        file_path <- path_prj(functions_files[i])
+        if (!file.exists(file_path)) {
+            warning("Specified function file does not exist: ", file_path)
+            next
         }
-        for (i in seq_along(functions_files)) {
-            file_path <- path_prj(functions_files[i])
-            if (!file.exists(file_path)) {
-                warning("Specified function file does not exist: ", file_path)
-                next
-            }
-            source(file_path, local = FALSE)
-        }
-    }, error = function(e) {
-        warning(e)
-    }, warning = function(w) {
-        warning(w)
-    })
+        source(file_path, local = FALSE)
+    }
     return(invisible())
 }

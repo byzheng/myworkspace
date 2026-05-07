@@ -4,14 +4,7 @@
 \alias{load_functions}
 \title{Source R Functions from Directory}
 \usage{
-load_functions(
-  folders = c("Rcode/function", "Rcode/00_function", "script/function",
-    "script/00_function")
-)
-}
-\arguments{
-\item{folders}{Character vector. Paths to the directories containing R files relative to project root. 
-Default is c("Rcode/function",  "Rcode/00_function", "script/function", "script/00_function").}
+load_functions()
 }
 \value{
 Invisible NULL. The function sources the R files for their side effects.
