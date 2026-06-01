@@ -66,6 +66,34 @@ test_that("render_modified_quarto works end-to-end", {
 })
 
 
+test_that("render_modified_quarto respects delete_orphan_html", {
+    root <- file.path(tempdir(), paste0("quarto-render-orphan-", as.integer(Sys.time()), "-", sample.int(1e6, 1)))
+    dir.create(root, recursive = TRUE)
+    on.exit(unlink(root, recursive = TRUE), add = TRUE)
+    oldwd <- setwd(root)
+    on.exit(setwd(oldwd), add = TRUE)
+
+    writeLines(c(
+        "project:",
+        "  type: website",
+        "  render:",
+        "    - 'index.qmd'"
+    ), file.path(root, "_quarto.yml"))
+    dir.create(file.path(root, "_site"), recursive = TRUE)
+    writeLines("# Index", file.path(root, "index.qmd"))
+
+    orphan_html <- file.path(root, "_site", "orphan.html")
+    writeLines("orphan", orphan_html)
+
+    render_modified_quarto(root_dir = root, dry_run = TRUE, delete_orphan_html = FALSE)
+    expect_true(file.exists(orphan_html))
+
+    writeLines("orphan", orphan_html)
+    render_modified_quarto(root_dir = root, dry_run = TRUE, delete_orphan_html = TRUE)
+    expect_false(file.exists(orphan_html))
+})
+
+
 test_that("render_modified_quarto link among files", {
     skip_if_not_installed("quarto")
     skip_if_not_installed("yaml")

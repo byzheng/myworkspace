@@ -168,6 +168,7 @@ get_targets_manifest_qmd_files <- function(root_dir) {
 #' @param dry_run Logical scalar. If `TRUE`, returns files that would be
 #'   rendered without invoking Quarto.
 #' @param force Logical scalar. If `TRUE`, renders all matched files.
+#' @param delete_orphan_html Logical scalar. If `TRUE`, deletes HTML files in `_site/`
 #' @param ... Additional arguments passed to `quarto::quarto_render()`
 #'
 #' @return Character vector of relative files selected for rendering.
@@ -183,10 +184,12 @@ render_modified_quarto <- function(
     cache_file = ".quarto/render-hashes.json",
     dry_run = FALSE,
     force = FALSE,
+    delete_orphan_html = TRUE,
     ...
 ) {
     stopifnot(is.logical(dry_run), length(dry_run) == 1)
     stopifnot(is.logical(force), length(force) == 1)
+    stopifnot(is.logical(delete_orphan_html), length(delete_orphan_html) == 1)
     stopifnot(is.character(cache_file), length(cache_file) == 1)
 
     hashes <- list_quarto_render_hashes(quarto_yml = quarto_yml, root_dir = root_dir)
@@ -248,7 +251,7 @@ render_modified_quarto <- function(
             message("Removing HTML files for deleted source files: ", length(deleted_files))
             message("Deleted HTML files: ", paste(deleted_files, collapse = ", "))
             to_remove <- deleted_files[file.exists(deleted_files)]
-            if (length(to_remove) > 0) {
+            if (length(to_remove) > 0 && delete_orphan_html) {
                 unlink(to_remove)
             }
         }

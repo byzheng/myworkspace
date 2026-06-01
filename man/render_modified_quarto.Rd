@@ -10,6 +10,7 @@ render_modified_quarto(
   cache_file = ".quarto/render-hashes.json",
   dry_run = FALSE,
   force = FALSE,
+  delete_orphan_html = TRUE,
   ...
 )
 }
@@ -27,6 +28,8 @@ paths. Defaults to `here::here()`.}
 rendered without invoking Quarto.}
 
 \item{force}{Logical scalar. If `TRUE`, renders all matched files.}
+
+\item{delete_orphan_html}{Logical scalar. If `TRUE`, deletes HTML files in `_site/`}
 
 \item{...}{Additional arguments passed to `quarto::quarto_render()`}
 }
