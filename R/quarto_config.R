@@ -239,24 +239,25 @@ render_modified_quarto <- function(
     html_paths_all <- file.path(root_dir, "_site", tools::file_path_sans_ext(files_all))
     html_paths_all <- paste0(html_paths_all, ".html") |> 
         make_relative(root_dir)
-    
-    existing_html_files <- list.files(file.path(root_dir, "_site"), 
-        pattern = "\\.html$", 
-        recursive = TRUE, 
-        full.names = TRUE)
-    if (length(existing_html_files) > 0) {
-        existing_html_files <- make_relative(existing_html_files, root_dir)
-        deleted_files <- existing_html_files[!(existing_html_files %in% html_paths_all)]
-        if (length(deleted_files) > 0) {
-            message("Removing HTML files for deleted source files: ", length(deleted_files))
-            message("Deleted HTML files: ", paste(deleted_files, collapse = ", "))
-            to_remove <- deleted_files[file.exists(deleted_files)]
-            if (length(to_remove) > 0 && delete_orphan_html) {
-                unlink(to_remove)
+    if (delete_orphan_html) {
+        message("Checking for orphan HTML files to delete...")
+        existing_html_files <- list.files(file.path(root_dir, "_site"), 
+            pattern = "\\.html$", 
+            recursive = TRUE, 
+            full.names = TRUE)
+        if (length(existing_html_files) > 0) {
+            existing_html_files <- make_relative(existing_html_files, root_dir)
+            deleted_files <- existing_html_files[!(existing_html_files %in% html_paths_all)]
+            if (length(deleted_files) > 0) {
+                message("Removing HTML files for deleted source files: ", length(deleted_files))
+                message("Deleted HTML files: ", paste(deleted_files, collapse = ", "))
+                to_remove <- deleted_files[file.exists(deleted_files)]
+                if (length(to_remove) > 0) {
+                    unlink(to_remove)
+                }
             }
         }
     }
-    
     
 
     if (length(changed) == 0) {
