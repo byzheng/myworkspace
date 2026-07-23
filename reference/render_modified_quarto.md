@@ -13,6 +13,7 @@ render_modified_quarto(
   cache_file = ".quarto/render-hashes.json",
   dry_run = FALSE,
   force = FALSE,
+  delete_orphan_html = TRUE,
   ...
 )
 ```
@@ -42,6 +43,10 @@ render_modified_quarto(
 - force:
 
   Logical scalar. If \`TRUE\`, renders all matched files.
+
+- delete_orphan_html:
+
+  Logical scalar. If \`TRUE\`, deletes HTML files in \`\_site/\`
 
 - ...:
 

@@ -6,6 +6,8 @@
   : Build and deploy project pipeline
 - [`check_external_sentinel()`](https://myworkspace.bangyou.me/reference/check_external_sentinel.md)
   : Check External Sentinel Staleness for targets
+- [`copy_markdown()`](https://myworkspace.bangyou.me/reference/copy_markdown.md)
+  : Copy Markdown Files to a Destination Directory
 - [`copy_quarto_site()`](https://myworkspace.bangyou.me/reference/copy_quarto_site.md)
   : Copies the contents of a Quarto site's output directory (default
   '\_site') to a specified target directory. Handles overwriting, parent
