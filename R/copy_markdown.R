@@ -27,6 +27,16 @@ copy_markdown <- function(
 ) {
 
     stopifnot(dir.exists(src))
+
+    if (dir.exists(dst)) {
+        if (length(fs::dir_ls(dst, all = TRUE, recurse = TRUE)) > 0) {
+            if (!overwrite) {
+                stop("Destination directory is not empty; set overwrite = TRUE to clear it.", call. = FALSE)
+            }
+            fs::dir_delete(dst)
+        }
+    }
+
     fs::dir_create(dst)
 
     md_files <- fs::dir_ls(
@@ -47,7 +57,16 @@ copy_markdown <- function(
     for (f in md_files) {
 
         rel <- fs::path_rel(f, start = src)
-        target <- fs::path(dst, rel)
+        target_rel <- rel
+
+        if (grepl("\\.html\\.md$", fs::path_file(rel))) {
+            target_rel <- fs::path(
+                fs::path_dir(rel),
+                sub("\\.html\\.md$", ".md", fs::path_file(rel))
+            )
+        }
+
+        target <- fs::path(dst, target_rel)
 
         fs::dir_create(fs::path_dir(target))
 

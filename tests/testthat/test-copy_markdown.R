@@ -79,6 +79,29 @@ test_that("copy_markdown errors for non-empty destinations when overwrite is FAL
     fs::dir_delete(dst_dir)
 })
 
+test_that("copy_markdown rewrites .html.md targets in nested directories as .md", {
+    skip_if_not_installed("fs")
+
+    src_dir <- file.path(tempdir(), "copy_markdown_src_nested_html")
+    dst_dir <- file.path(tempdir(), "copy_markdown_dst_nested_html")
+
+    if (dir.exists(src_dir)) fs::dir_delete(src_dir)
+    if (dir.exists(dst_dir)) fs::dir_delete(dst_dir)
+
+    dir.create(file.path(src_dir, "docs"), recursive = TRUE, showWarnings = FALSE)
+
+    writeLines("nested html markdown", file.path(src_dir, "docs", "guide.html.md"))
+
+    copied <- copy_markdown(src = src_dir, dst = dst_dir, overwrite = TRUE)
+
+    expect_true("docs/guide.html.md" %in% copied)
+    expect_true(file.exists(file.path(dst_dir, "docs", "guide.md")))
+    expect_false(file.exists(file.path(dst_dir, "docs", "guide.html.md")))
+
+    fs::dir_delete(src_dir)
+    fs::dir_delete(dst_dir)
+})
+
 test_that("copy_markdown rewrites .html.md targets as .md", {
     skip_if_not_installed("fs")
 
