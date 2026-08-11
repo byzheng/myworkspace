@@ -12,6 +12,7 @@ copy_markdown(
   src = ".",
   dst,
   overwrite = TRUE,
+  keep_md = FALSE,
   exclude = c("_site", ".quarto", ".git", ".targets", "_freeze", ".Rproj.user",
     ".vscode")
 )
@@ -33,6 +34,12 @@ copy_markdown(
 
   Logical scalar. Whether to overwrite existing files in the destination
   when the source file is newer. Defaults to TRUE.
+
+- keep_md:
+
+  Logical scalar. Whether to keep the original markdown files that have
+  the \`.html.md\` extension. Defaults to FALSE, which deletes these
+  files after copying.
 
 - exclude:
 

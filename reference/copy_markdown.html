@@ -58,6 +58,7 @@ metadata. Existing files are only overwritten when requested.</p>
 <span>  src <span class="op">=</span> <span class="st">"."</span>,</span>
 <span>  <span class="va">dst</span>,</span>
 <span>  overwrite <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  keep_md <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  exclude <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"_site"</span>, <span class="st">".quarto"</span>, <span class="st">".git"</span>, <span class="st">".targets"</span>, <span class="st">"_freeze"</span>, <span class="st">".Rproj.user"</span>,</span>
 <span>    <span class="st">".vscode"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -80,6 +81,11 @@ be copied.</p></dd>
 <dt id="arg-overwrite">overwrite<a class="anchor" aria-label="anchor" href="#arg-overwrite"></a></dt>
 <dd><p>Logical scalar. Whether to overwrite existing files in the
 destination when the source file is newer. Defaults to TRUE.</p></dd>
+
+
+<dt id="arg-keep-md">keep_md<a class="anchor" aria-label="anchor" href="#arg-keep-md"></a></dt>
+<dd><p>Logical scalar. Whether to keep the original markdown files that
+have the `.html.md` extension. Defaults to FALSE, which deletes these files after copying.</p></dd>
 
 
 <dt id="arg-exclude">exclude<a class="anchor" aria-label="anchor" href="#arg-exclude"></a></dt>
