@@ -124,3 +124,32 @@ test_that("copy_markdown rewrites .html.md targets as .md", {
     fs::dir_delete(src_dir)
     fs::dir_delete(dst_dir)
 })
+
+test_that("copy_markdown keeps source .html.md files when keep_md is TRUE", {
+    skip_if_not_installed("fs")
+
+    src_dir <- file.path(tempdir(), "copy_markdown_src_keep_md")
+    dst_dir <- file.path(tempdir(), "copy_markdown_dst_keep_md")
+
+    if (dir.exists(src_dir)) fs::dir_delete(src_dir)
+    if (dir.exists(dst_dir)) fs::dir_delete(dst_dir)
+
+    dir.create(src_dir, recursive = TRUE, showWarnings = FALSE)
+
+    src_file <- file.path(src_dir, "guide.html.md")
+    writeLines("html markdown", src_file)
+
+    copied <- copy_markdown(
+        src = src_dir,
+        dst = dst_dir,
+        overwrite = TRUE,
+        keep_md = TRUE
+    )
+
+    expect_true("guide.html.md" %in% copied)
+    expect_true(file.exists(file.path(dst_dir, "guide.md")))
+    expect_true(file.exists(src_file))
+
+    fs::dir_delete(src_dir)
+    fs::dir_delete(dst_dir)
+})

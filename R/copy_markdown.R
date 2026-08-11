@@ -10,6 +10,8 @@
 #'   be copied.
 #' @param overwrite Logical scalar. Whether to overwrite existing files in the
 #'   destination when the source file is newer. Defaults to TRUE.
+#' @param keep_md Logical scalar. Whether to keep the original markdown files that
+#'   have the `.html.md` extension. Defaults to FALSE, which deletes these files after copying.
 #' @param exclude Character vector. Directory names to skip when scanning for
 #'   markdown files. Defaults to common build and editor directories.
 #' @return Invisible character vector of relative paths copied to the
@@ -23,6 +25,7 @@ copy_markdown <- function(
     src = ".",
     dst,
     overwrite = TRUE,
+    keep_md = FALSE,
     exclude = c("_site", ".quarto", ".git", ".targets", "_freeze", ".Rproj.user", ".vscode")
 ) {
 
@@ -86,7 +89,14 @@ copy_markdown <- function(
         copied <- c(copied, rel)
         }
     }
-
+    if (!keep_md) {
+        md_files |>
+            lapply(function(f) {
+                if (grepl("\\.html\\.md$", fs::path_file(f))) {
+                    fs::file_delete(f)
+                }
+            })
+    }
     message(length(copied), " markdown files deployed to:")
     message(normalizePath(dst))
 
