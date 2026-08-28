@@ -43,6 +43,45 @@ test_that("list_quarto_render_files resolves render patterns from _quarto.yml", 
     ))
 })
 
+test_that("list_quarto_render_files resolves plain wildcard patterns recursively", {
+    root <- file.path(tempdir(), paste0("quarto-wildcard-", as.integer(Sys.time()), "-", sample.int(1e6, 1)))
+    dir.create(root, recursive = TRUE)
+    on.exit(unlink(root, recursive = TRUE), add = TRUE)
+
+    dir.create(file.path(root, "posts", "nested"), recursive = TRUE)
+
+    writeLines(c(
+        "project:",
+        "  type: website",
+        "  render:",
+        "    - \"*.qmd\"",
+        "    - \"*.rmd\"",
+        "    - \"*.md\""
+    ), file.path(root, "_quarto.yml"))
+
+    files_to_create <- c(
+        "index.qmd",
+        "posts/a.qmd",
+        "posts/nested/b.qmd",
+        "readme.Rmd",
+        "posts/notes.md",
+        "posts/nested/ignored.txt"
+    )
+    for (f in files_to_create) {
+        writeLines("x", file.path(root, f))
+    }
+
+    result <- list_quarto_render_files(root_dir = root)
+
+    expect_setequal(result, c(
+        "index.qmd",
+        "posts/a.qmd",
+        "posts/nested/b.qmd",
+        "readme.Rmd",
+        "posts/notes.md"
+    ))
+})
+
 test_that("list_quarto_render_files ignores files in hidden or underscored directories", {
     root <- file.path(tempdir(), paste0("quarto-hidden-dirs-", as.integer(Sys.time()), "-", sample.int(1e6, 1)))
     dir.create(root, recursive = TRUE)

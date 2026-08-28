@@ -46,7 +46,19 @@ list_quarto_render_files <- function(
     root_dir <- normalizePath(root_dir, winslash = "/")
     all_files <- c()
     for (i in seq_along(patterns)) {
-        files_i <- bracer::glob(file.path(root_dir, patterns[i]), engine = "r")
+        if (tolower(patterns[i]) %in% c("*.qmd", "*.rmd", "*.md")) {
+            # bracer::glob cannot expand bare recursive wildcards like `*.qmd`
+            ext_pattern <- paste0("\\.", tools::file_ext(patterns[i]), "$")
+            files_i <- list.files(
+                root_dir,
+                pattern = ext_pattern,
+                recursive = TRUE,
+                full.names = TRUE,
+                ignore.case = TRUE
+            )
+        } else {
+            files_i <- bracer::glob(file.path(root_dir, patterns[i]), engine = "r")
+        }
         all_files <- c(all_files, files_i)
     }
     all_files <- make_relative(all_files, root_dir)
