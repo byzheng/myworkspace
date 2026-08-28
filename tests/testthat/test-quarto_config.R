@@ -90,6 +90,7 @@ test_that("list_quarto_render_files ignores files in hidden or underscored direc
     dir.create(file.path(root, "visible", "nested"), recursive = TRUE)
     dir.create(file.path(root, "visible", ".cache"), recursive = TRUE)
     dir.create(file.path(root, "visible", "_freeze"), recursive = TRUE)
+    dir.create(file.path(root, "visible", "renv"), recursive = TRUE)
     dir.create(file.path(root, ".hidden"), recursive = TRUE)
     dir.create(file.path(root, "_private"), recursive = TRUE)
 
@@ -101,6 +102,7 @@ test_that("list_quarto_render_files ignores files in hidden or underscored direc
         "    - \"visible/**/*.R\"",
         "    - \"visible/.cache/*.qmd\"",
         "    - \"visible/_freeze/*.R\"",
+        "    - \"visible/renv/*.qmd\"",
         "    - \".hidden/*.qmd\"",
         "    - \"_private/*.R\""
     ), file.path(root, "_quarto.yml"))
@@ -110,6 +112,7 @@ test_that("list_quarto_render_files ignores files in hidden or underscored direc
         "visible/nested/code.R",
         "visible/.cache/ignored.qmd",
         "visible/_freeze/ignored.R",
+        "visible/renv/ignored.qmd",
         ".hidden/ignored.qmd",
         "_private/ignored.R"
     )
@@ -123,6 +126,30 @@ test_that("list_quarto_render_files ignores files in hidden or underscored direc
         "visible/page.qmd",
         "visible/nested/code.R"
     ))
+})
+
+test_that("list_quarto_render_files accepts custom ignored directories", {
+    root <- file.path(tempdir(), paste0("quarto-custom-ignored-dirs-", as.integer(Sys.time()), "-", sample.int(1e6, 1)))
+    dir.create(root, recursive = TRUE)
+    on.exit(unlink(root, recursive = TRUE), add = TRUE)
+
+    dir.create(file.path(root, "custom-ignore"), recursive = TRUE)
+    writeLines(c(
+        "project:",
+        "  render:",
+        "    - \"*.qmd\""
+    ), file.path(root, "_quarto.yml"))
+    writeLines("x", file.path(root, "custom-ignore", "ignored.qmd"))
+    writeLines("x", file.path(root, "included.qmd"))
+
+    result_default <- list_quarto_render_files(root_dir = root)
+    result_custom <- list_quarto_render_files(
+        root_dir = root,
+        ignored_dirs = c("renv", "custom-ignore")
+    )
+
+    expect_true("custom-ignore/ignored.qmd" %in% result_default)
+    expect_setequal(result_custom, "included.qmd")
 })
 
 test_that("list_quarto_render_hashes returns named hashes and updates on content change", {

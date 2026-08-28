@@ -12,6 +12,8 @@
 #' @param exclude_targets_qmd Logical scalar. If `TRUE`, excludes `.qmd` files
 #'   discovered in `targets::tar_manifest()` `command` entries when those files
 #'   exist and are part of the resolved render list.
+#' @param ignored_dirs Character vector of directory names whose files should
+#'   be excluded from the result.
 #'
 #' @return Character vector of relative file paths matched by `render:`
 #'   patterns.
@@ -23,11 +25,13 @@
 list_quarto_render_files <- function(
     quarto_yml = "_quarto.yml",
     root_dir = here::here(),
-    exclude_targets_qmd = TRUE
+    exclude_targets_qmd = TRUE,
+    ignored_dirs = c("renv", "node_modules", "vendor", "venv", "__pycache__")
 ) {
     stopifnot(is.character(quarto_yml), length(quarto_yml) == 1)
     stopifnot(is.character(root_dir), length(root_dir) == 1)
     stopifnot(is.logical(exclude_targets_qmd), length(exclude_targets_qmd) == 1)
+    stopifnot(is.character(ignored_dirs))
 
     quarto_path <- if (grepl("^/|^[A-Z]:", quarto_yml)) {
         quarto_yml
@@ -69,7 +73,12 @@ list_quarto_render_files <- function(
         function(segments) any(grepl("^[_\\.]", segments)),
         logical(1)
     )
-    all_files <- all_files[!has_hidden_segment]
+    has_ignored_dir <- vapply(
+        path_segments,
+        function(segments) any(tolower(segments) %in% ignored_dirs),
+        logical(1)
+    )
+    all_files <- all_files[!has_hidden_segment & !has_ignored_dir]
     if (exclude_targets_qmd) {
         target_qmd <- get_targets_manifest_qmd_files(root_dir = root_dir)
         if (length(target_qmd) > 0) {
